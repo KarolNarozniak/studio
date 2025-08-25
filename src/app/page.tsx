@@ -48,7 +48,7 @@ export default function Home() {
             FakeOrNot
           </h1>
           <p className="mt-2 text-lg text-muted-foreground max-w-2xl">
-            Ultimate tool agains Phishing. Enter an email or domain to analyze its trustworthiness.
+            Ultimate tool against Phishing. Enter an email or domain to analyze its trustworthiness.
           </p>
         </header>
 
