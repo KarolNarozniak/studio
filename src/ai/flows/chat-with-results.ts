@@ -4,18 +4,22 @@
  *
  * - chatWithResults - A function to handle chat messages regarding the analysis.
  */
-import { Message } from 'genkit';
-import { geminiFlash } from '@/ai/genkit';
+import {ai} from '@/ai/genkit';
+import {Message} from 'genkit';
 
 export async function chatWithResults(
   history: Message[],
   userMessage: string
 ): Promise<string> {
   try {
-    const chat = geminiFlash.startChat({ history });
-    const result = await chat.sendMessage(userMessage);
-    const response = result.response;
-    const text = response.text();
+    // The correct way to handle conversation with a stateless model is to provide the full history.
+    const {output} = await ai.generate({
+      model: 'googleai/gemini-2.0-flash',
+      history: history,
+      prompt: userMessage,
+    });
+
+    const text = output.text;
 
     if (!text) {
       return "I'm sorry, I wasn't able to generate a response for that. Please try rephrasing your question.";

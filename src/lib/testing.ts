@@ -14,16 +14,14 @@ export async function runChatDiagnostics(
     logs.push("--- Starting Chat Diagnostics ---");
 
     // Test 1: Data Formatting
-    let formattedInput: { history: Message[], userMessage: string } | null = null;
+    let history: Message[] | null = null;
     try {
         logs.push("[1/3] Formatting input data...");
         const systemPrompt = `You are an AI assistant for the TrustCheck application. Your task is to answer user questions based on the security analysis report for an email or domain. Use ONLY the information provided in the report. If the information is not in the report, state that you do not have that information. Here is the full analysis report:\n---\n${analysisData}\n---`;
-        const history: Message[] = [{ role: 'system', content: [{ text: systemPrompt }] }];
-        formattedInput = { history, userMessage };
+        history = [{ role: 'system', content: [{ text: systemPrompt }] }];
         logs.push("  [SUCCESS] Data formatted successfully.");
         logs.push("  Formatted Data for AI:");
-        // Use JSON.stringify to clearly show the final object being sent
-        logs.push(JSON.stringify(formattedInput, null, 2)); 
+        logs.push(JSON.stringify({ history, userMessage }, null, 2)); 
     } catch (e) {
         const error = e instanceof Error ? e.message : String(e);
         logs.push(`  [FAILURE] Failed to format data: ${error}`);
@@ -35,7 +33,7 @@ export async function runChatDiagnostics(
     let aiResponse: string | null = null;
     try {
         logs.push("\n[2/3] Calling the main AI chat flow (chatWithResults)...");
-        aiResponse = await chatWithResults(formattedInput.history, formattedInput.userMessage);
+        aiResponse = await chatWithResults(history, userMessage);
         logs.push("  [SUCCESS] AI flow executed.");
         logs.push("  AI Response:");
         logs.push(aiResponse);
@@ -48,11 +46,11 @@ export async function runChatDiagnostics(
     
     // Test 3: Validate AI Response
     logs.push("\n[3/3] Validating AI response...");
-    if (aiResponse && !aiResponse.includes("I'm sorry")) {
+    if (aiResponse && !aiResponse.includes("I'm sorry") && !aiResponse.includes("error occurred")) {
         logs.push("  [SUCCESS] AI provided a valid, content-rich response.");
         logs.push("--- Diagnostics Complete: All tests passed! ---");
     } else {
-        logs.push("  [FAILURE] AI returned a generic or empty response.");
+        logs.push("  [FAILURE] AI returned a generic or error response.");
         logs.push("--- Diagnostics Complete: Validation failed. ---");
     }
 
