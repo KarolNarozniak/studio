@@ -28,7 +28,7 @@ export async function chatWithResults(
 const prompt = ai.definePrompt({
   name: 'chatWithResultsPrompt',
   input: {schema: ChatWithResultsInputSchema},
-  output: {schema: z.string()},
+  output: {schema: z.string().nullable()},
   prompt: `You are a helpful AI assistant embedded in the FakeOrNot application. Your role is to answer user questions about the analysis results they have just received.
 
   You have access to the full JSON object of the analysis results. Use this data to provide clear, concise, and easy-to-understand explanations. Do not make up information. If the answer isn't in the provided data, say that you don't have that information.
