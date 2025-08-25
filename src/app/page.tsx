@@ -9,7 +9,7 @@ import { TrustCheckForm } from "@/components/trustcheck-form";
 import { TrustCheckResults } from "@/components/trustcheck-results";
 import { TrustCheckChat } from "@/components/trustcheck-chat";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Terminal } from "lucide-react";
 
