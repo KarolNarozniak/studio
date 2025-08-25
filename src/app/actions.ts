@@ -70,7 +70,24 @@ export async function chatAboutResults(
   }
 
   try {
-    const reply = await chatWithResults({ analysisResults, userMessage });
+    const { analysis, summary } = analysisResults;
+
+    // Create the structured input required by the chat flow
+    const chatInput = {
+      query: analysis.query,
+      summary: summary.summary,
+      domainReputation: `Score: ${analysis.domainReputation.score}/100 by ${analysis.domainReputation.provider}`,
+      whoisData: `Created: ${analysis.whoisData.creationDate}, Expires: ${analysis.whoisData.expiryDate}, Registrar: ${analysis.whoisData.registrar}, Owner: ${analysis.whoisData.owner}`,
+      dnsRecords: `MX: ${analysis.dnsRecords.mx}, SPF: ${analysis.dnsRecords.spf}, DKIM: ${analysis.dnsRecords.dkim}, DMARC: ${analysis.dnsRecords.dmarc}`,
+      blacklistStatus: `Listed: ${analysis.blacklistStatus.isListed} on ${analysis.blacklistStatus.sources.join(', ') || '0'} blacklists.`,
+      threatIntelligence: `Known Threat: ${analysis.threatIntelligence.isKnownThreat}, Types: ${analysis.threatIntelligence.threatTypes.join(", ") || "N/A"}`,
+      historicalData: `Changes: ${analysis.historicalData.changes}, Last Change: ${analysis.historicalData.lastChangeDate}`,
+      typosquattingCheck: `Potential Typosquatting: ${analysis.typosquattingCheck.isPotentialTyposquatting}. Suspected Original: ${analysis.typosquattingCheck.suspectedOriginalDomain}. Reason: ${analysis.typosquattingCheck.reason}`,
+      emailVerification: analysis.emailVerification ? `Deliverable: ${analysis.emailVerification.isDeliverable}, Disposable: ${analysis.emailVerification.isDisposable}, Catch-All: ${analysis.emailVerification.isCatchAll}` : 'N/A',
+      userMessage,
+    };
+
+    const reply = await chatWithResults(chatInput);
     return { reply };
   } catch (e) {
     console.error("Error in chat action:", e);
