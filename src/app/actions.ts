@@ -53,7 +53,8 @@ export async function performTrustCheck(
     return { analysis, summary };
   } catch (e) {
     console.error("Error performing trust check:", e);
-    return { error: "An unexpected error occurred during analysis." };
+    const errorMessage = e instanceof Error ? e.message : "An unexpected error occurred during analysis.";
+    return { error: errorMessage };
   }
 }
 
@@ -73,6 +74,7 @@ export async function chatAboutResults(
     return { reply };
   } catch (e) {
     console.error("Error in chat action:", e);
-    return { error: "An unexpected error occurred during the chat." };
+    const errorMessage = e instanceof Error ? e.message : "An unexpected error occurred during the chat.";
+    return { error: errorMessage };
   }
 }
