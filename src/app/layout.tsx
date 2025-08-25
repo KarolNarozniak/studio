@@ -6,7 +6,7 @@ import { Toaster } from "@/components/ui/toaster";
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
-  title: "TrustCheck",
+  title: "FakeOrNot",
   description: "Check the trustworthiness of any email or domain.",
 };
 
