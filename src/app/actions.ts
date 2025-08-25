@@ -5,6 +5,8 @@ import { chatWithResults } from "@/ai/flows/chat-with-results";
 import { detectTyposquatting } from "@/ai/flows/detect-typosquatting";
 import { getMockAnalysisResults } from "@/lib/mocks";
 import type { TrustCheckResult } from "@/lib/types";
+import { runChatDiagnostics as runChatDiagnosticsLogic } from "@/lib/testing";
+
 
 export async function performTrustCheck(
   formData: FormData
@@ -58,6 +60,28 @@ export async function performTrustCheck(
   }
 }
 
+const formatChatInput = (
+  analysisResults: TrustCheckResult,
+  userMessage: string
+) => {
+  const { analysis, summary } = analysisResults;
+
+  return {
+    query: analysis.query,
+    summary: summary.summary,
+    domainReputation: `Score: ${analysis.domainReputation.score}/100 from ${analysis.domainReputation.provider}.`,
+    whoisData: `Domain created on ${analysis.whoisData.creationDate} and expires on ${analysis.whoisData.expiryDate}. Registrar: ${analysis.whoisData.registrar}. Owner: ${analysis.whoisData.owner || 'N/A'}.`,
+    dnsRecords: `MX: ${analysis.dnsRecords.mx}, SPF: ${analysis.dnsRecords.spf}, DKIM: ${analysis.dnsRecords.dkim}, DMARC: ${analysis.dnsRecords.dmarc}.`,
+    blacklistStatus: `Is Listed: ${analysis.blacklistStatus.isListed}. Sources: ${analysis.blacklistStatus.sources.join(', ') || 'None'}.`,
+    threatIntelligence: `Is Known Threat: ${analysis.threatIntelligence.isKnownThreat}. Threat Types: ${analysis.threatIntelligence.threatTypes.join(", ") || "None"}.`,
+    historicalData: `Ownership Changes: ${analysis.historicalData.changes}. Last Change: ${analysis.historicalData.lastChangeDate}.`,
+    typosquattingCheck: `Is Potential Typosquatting: ${analysis.typosquattingCheck.isPotentialTyposquatting}. Suspected Original: ${analysis.typosquattingCheck.suspectedOriginalDomain}. Reason: ${analysis.typosquattingCheck.reason}`,
+    emailVerification: analysis.isEmail && analysis.emailVerification ? `Deliverable: ${analysis.emailVerification.isDeliverable}, Disposable: ${analysis.emailVerification.isDisposable}, Catch-All: ${analysis.emailVerification.isCatchAll}.` : 'N/A',
+    userMessage,
+  };
+};
+
+
 export async function chatAboutResults(
   analysisResults: TrustCheckResult,
   userMessage: string
@@ -70,23 +94,7 @@ export async function chatAboutResults(
   }
 
   try {
-    const { analysis, summary } = analysisResults;
-
-    // Create the structured input required by the chat flow by formatting each piece of data into a string.
-    const chatInput = {
-      query: analysis.query,
-      summary: summary.summary,
-      domainReputation: `Score: ${analysis.domainReputation.score}/100 from ${analysis.domainReputation.provider}.`,
-      whoisData: `Domain created on ${analysis.whoisData.creationDate} and expires on ${analysis.whoisData.expiryDate}. Registrar: ${analysis.whoisData.registrar}. Owner: ${analysis.whoisData.owner || 'N/A'}.`,
-      dnsRecords: `MX: ${analysis.dnsRecords.mx}, SPF: ${analysis.dnsRecords.spf}, DKIM: ${analysis.dnsRecords.dkim}, DMARC: ${analysis.dnsRecords.dmarc}.`,
-      blacklistStatus: `Is Listed: ${analysis.blacklistStatus.isListed}. Sources: ${analysis.blacklistStatus.sources.join(', ') || 'None'}.`,
-      threatIntelligence: `Is Known Threat: ${analysis.threatIntelligence.isKnownThreat}. Threat Types: ${analysis.threatIntelligence.threatTypes.join(", ") || "None"}.`,
-      historicalData: `Ownership Changes: ${analysis.historicalData.changes}. Last Change: ${analysis.historicalData.lastChangeDate}.`,
-      typosquattingCheck: `Is Potential Typosquatting: ${analysis.typosquattingCheck.isPotentialTyposquatting}. Suspected Original: ${analysis.typosquattingCheck.suspectedOriginalDomain}. Reason: ${analysis.typosquattingCheck.reason}`,
-      emailVerification: analysis.isEmail && analysis.emailVerification ? `Deliverable: ${analysis.emailVerification.isDeliverable}, Disposable: ${analysis.emailVerification.isDisposable}, Catch-All: ${analysis.emailVerification.isCatchAll}.` : 'N/A',
-      userMessage,
-    };
-
+    const chatInput = formatChatInput(analysisResults, userMessage);
     const reply = await chatWithResults(chatInput);
     return { reply };
   } catch (e) {
@@ -94,4 +102,18 @@ export async function chatAboutResults(
     const errorMessage = e instanceof Error ? e.message : "An unexpected error occurred during the chat.";
     return { error: errorMessage };
   }
+}
+
+export async function runChatDiagnostics(
+    result: TrustCheckResult,
+    userMessage: string
+): Promise<{ logs: string[] } | { error: string }> {
+    try {
+        const logs = await runChatDiagnosticsLogic(result, userMessage, formatChatInput);
+        return { logs };
+    } catch (e) {
+        console.error("Error running diagnostics:", e);
+        const errorMessage = e instanceof Error ? e.message : "An unexpected error occurred during diagnostics.";
+        return { error: errorMessage };
+    }
 }
