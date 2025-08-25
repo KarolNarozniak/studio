@@ -35,7 +35,7 @@ const prompt = ai.definePrompt({
 
   Analysis Results:
   \`\`\`json
-  {{{json analysisResults}}}
+  {{json analysisResults}}
   \`\`\`
 
   User's Question:
