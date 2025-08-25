@@ -11,18 +11,9 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const ChatWithResultsInputSchema = z.object({
-  // Instead of a generic `any`, we now expect stringified versions of the key data points.
-  // This makes the prompt structure more reliable.
-  query: z.string().describe('The original email or domain that was checked.'),
-  summary: z.string().describe('The AI-generated summary of the results.'),
-  domainReputation: z.string().describe('Domain reputation information.'),
-  whoisData: z.string().describe('WHOIS lookup data.'),
-  dnsRecords: z.string().describe('DNS records information.'),
-  blacklistStatus: z.string().describe('Blacklist status of the domain/email.'),
-  threatIntelligence: z.string().describe('Threat intelligence report.'),
-  historicalData: z.string().describe('Historical data of the domain.'),
-  typosquattingCheck: z.string().describe('Analysis of whether the domain is a potential typosquatting attempt.'),
-  emailVerification: z.string().optional().describe('Email verification details, if applicable.'),
+  analysisData: z
+    .string()
+    .describe('A pre-formatted string containing all the analysis results.'),
   userMessage: z.string().describe("The user's message or question."),
 });
 export type ChatWithResultsInput = z.infer<typeof ChatWithResultsInputSchema>;
@@ -39,25 +30,18 @@ const prompt = ai.definePrompt({
   name: 'chatWithResultsPrompt',
   input: {schema: ChatWithResultsInputSchema},
   output: {schema: z.string().nullable()},
-  prompt: `You are a helpful AI assistant embedded in the FakeOrNot application. Your role is to answer user questions about the analysis results for the query: {{{query}}}.
+  prompt: `You are a helpful AI assistant embedded in the FakeOrNot application. Your role is to answer user questions based on the provided analysis report.
 
-  Use the following data to provide clear, concise, and easy-to-understand explanations. Do not make up information. If the answer isn't in the provided data, say that you don't have that information.
+Do not make up information. If the answer isn't in the provided data, say that you don't have that information. Keep your answers concise and easy to understand.
 
-  Here is the analysis data:
-  - Overall Summary: {{{summary}}}
-  - Domain Reputation: {{{domainReputation}}}
-  - WHOIS Data: {{{whoisData}}}
-  - DNS Records: {{{dnsRecords}}}
-  - Blacklist Status: {{{blacklistStatus}}}
-  - Threat Intelligence: {{{threatIntelligence}}}
-  - Historical Data: {{{historicalData}}}
-  - Typosquatting Check: {{{typosquattingCheck}}}
-  - Email Verification: {{{emailVerification}}}
+## Analysis Report
+{{{analysisData}}}
+## End of Report
 
-  User's Question:
-  "{{{userMessage}}}"
+## User's Question
+"{{{userMessage}}}"
 
-  Your Answer:
+## Your Answer
 `,
 });
 
