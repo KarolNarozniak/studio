@@ -5,8 +5,8 @@
  * - chatWithResults - A function to handle chat messages regarding the analysis.
  */
 
-import { generate, Message } from 'genkit';
-import { geminiFlash } from '@/ai/genkit';
+import { ai } from '@/ai/genkit';
+import { Message } from 'genkit';
 
 export async function chatWithResults(input: {
   analysisData: string;
@@ -30,13 +30,12 @@ ${input.analysisData}
     },
   ];
 
-  const { output } = await generate({
-    model: geminiFlash,
+  const { output } = await ai.generate({
     history: history,
     prompt: input.userMessage,
   });
 
-  const responseText = output as string | null;
+  const responseText = output() as string | null;
 
   if (responseText === null || responseText.trim() === '') {
     return "I'm sorry, I wasn't able to generate a response for that. Please try rephrasing your question.";
