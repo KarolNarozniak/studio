@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Bot, Loader2, Send, User } from 'lucide-react';
+import { Bot, Loader2, Send, User, AlertTriangle } from 'lucide-react';
 
 import type { TrustCheckResult } from '@/lib/types';
 import { chatAboutResults } from '@/app/actions';
@@ -21,6 +21,7 @@ import { Skeleton } from './ui/skeleton';
 interface Message {
   role: 'user' | 'assistant';
   content: string;
+  isError?: boolean;
 }
 
 const formSchema = z.object({
@@ -63,13 +64,12 @@ export function TrustCheckChat({ result }: { result: TrustCheckResult }) {
       setMessages((prev) => [...prev, assistantMessage]);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
-      toast({
-        variant: 'destructive',
-        title: 'Chat Error',
-        description: errorMessage,
-      });
-      // remove the user message if the call fails
-      setMessages((prev) => prev.slice(0, prev.length -1));
+       const assistantErrorMessage: Message = {
+        role: 'assistant',
+        content: `Sorry, an error occurred: ${errorMessage}`,
+        isError: true,
+      };
+      setMessages((prev) => [...prev, assistantErrorMessage]);
     } finally {
       setIsLoading(false);
     }
@@ -96,10 +96,12 @@ export function TrustCheckChat({ result }: { result: TrustCheckResult }) {
                   <div key={index} className={cn('flex items-start gap-3', message.role === 'user' ? 'justify-end' : 'justify-start')}>
                     {message.role === 'assistant' && (
                       <Avatar className="w-8 h-8">
-                        <AvatarFallback><Bot size={20}/></AvatarFallback>
+                        <AvatarFallback className={cn(message.isError && 'bg-destructive')}>
+                          {message.isError ? <AlertTriangle size={20} className="text-destructive-foreground" /> : <Bot size={20}/>}
+                          </AvatarFallback>
                       </Avatar>
                     )}
-                    <div className={cn('max-w-sm p-3 rounded-lg', message.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted')}>
+                    <div className={cn('max-w-sm p-3 rounded-lg', message.role === 'user' ? 'bg-primary text-primary-foreground' : (message.isError ? 'bg-destructive/20 text-destructive' : 'bg-muted'))}>
                       <p className="text-sm">{message.content}</p>
                     </div>
                     {message.role === 'user' && (
@@ -110,7 +112,7 @@ export function TrustCheckChat({ result }: { result: TrustCheckResult }) {
                   </div>
                 ))
               )}
-               {isLoading && (
+               {isLoading && !messages.some(m => m.isError) && (
                  <div className="flex items-start gap-3 justify-start">
                     <Avatar className="w-8 h-8">
                       <AvatarFallback><Bot size={20}/></AvatarFallback>
