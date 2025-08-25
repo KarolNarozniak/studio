@@ -4,41 +4,27 @@
  *
  * - chatWithResults - A function to handle chat messages regarding the analysis.
  */
-
-import { ai } from '@/ai/genkit';
 import { Message } from 'genkit';
+import { geminiFlash } from '@/ai/genkit';
 
-export async function chatWithResults(input: {
-  analysisData: string;
-  userMessage: string;
-}): Promise<string> {
-  const systemPrompt = `You are an AI assistant for the TrustCheck application.
-Your task is to answer user questions based on the security analysis report for an email or domain.
-Please use ONLY the information provided in the report to answer the user's question.
-If the information is not in the report, state that you do not have that information.
+export async function chatWithResults(
+  history: Message[],
+  userMessage: string
+): Promise<string> {
+  try {
+    const chat = geminiFlash.startChat({ history });
+    const result = await chat.sendMessage(userMessage);
+    const response = result.response;
+    const text = response.text();
 
-Here is the full analysis report:
----
-${input.analysisData}
----
-`;
-
-  const history: Message[] = [
-    {
-      role: 'system',
-      content: [{ text: systemPrompt }],
-    },
-  ];
-
-  const { output } = await ai.generate({
-    history: history,
-    prompt: input.userMessage,
-  });
-
-  const responseText = output() as string | null;
-
-  if (responseText === null || responseText.trim() === '') {
-    return "I'm sorry, I wasn't able to generate a response for that. Please try rephrasing your question.";
+    if (!text) {
+      return "I'm sorry, I wasn't able to generate a response for that. Please try rephrasing your question.";
+    }
+    return text;
+  } catch (e) {
+    console.error('Error in chatWithResults flow:', e);
+    const errorMessage =
+      e instanceof Error ? e.message : 'An unexpected error occurred.';
+    return `Sorry, an error occurred: ${errorMessage}`;
   }
-  return responseText;
 }

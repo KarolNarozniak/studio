@@ -3,33 +3,23 @@
 import type { TrustCheckResult } from './types';
 import { chatWithResults } from '@/ai/flows/chat-with-results';
 import { z } from 'genkit';
-
-const ChatWithResultsInputSchema = z.object({
-  analysisData: z
-    .string()
-    .describe('A pre-formatted string containing all the analysis results.'),
-  userMessage: z.string().describe("The user's message or question."),
-});
-
-type ChatWithResultsInput = z.infer<typeof ChatWithResultsInputSchema>;
-
-// The formatter function signature now matches the updated formatChatInput
-type FormatterFn = (result: TrustCheckResult, userMessage: string) => ChatWithResultsInput;
+import { Message } from 'genkit';
 
 export async function runChatDiagnostics(
-    result: TrustCheckResult,
+    analysisData: string,
     userMessage: string,
-    formatter: FormatterFn
 ): Promise<string[]> {
     const logs: string[] = [];
     
     logs.push("--- Starting Chat Diagnostics ---");
 
     // Test 1: Data Formatting
-    let formattedInput: ChatWithResultsInput | null = null;
+    let formattedInput: { history: Message[], userMessage: string } | null = null;
     try {
         logs.push("[1/3] Formatting input data...");
-        formattedInput = formatter(result, userMessage);
+        const systemPrompt = `You are an AI assistant for the TrustCheck application. Your task is to answer user questions based on the security analysis report for an email or domain. Use ONLY the information provided in the report. If the information is not in the report, state that you do not have that information. Here is the full analysis report:\n---\n${analysisData}\n---`;
+        const history: Message[] = [{ role: 'system', content: [{ text: systemPrompt }] }];
+        formattedInput = { history, userMessage };
         logs.push("  [SUCCESS] Data formatted successfully.");
         logs.push("  Formatted Data for AI:");
         // Use JSON.stringify to clearly show the final object being sent
@@ -45,7 +35,7 @@ export async function runChatDiagnostics(
     let aiResponse: string | null = null;
     try {
         logs.push("\n[2/3] Calling the main AI chat flow (chatWithResults)...");
-        aiResponse = await chatWithResults(formattedInput);
+        aiResponse = await chatWithResults(formattedInput.history, formattedInput.userMessage);
         logs.push("  [SUCCESS] AI flow executed.");
         logs.push("  AI Response:");
         logs.push(aiResponse);

@@ -6,6 +6,7 @@ import { detectTyposquatting } from "@/ai/flows/detect-typosquatting";
 import { getMockAnalysisResults } from "@/lib/mocks";
 import type { TrustCheckResult } from "@/lib/types";
 import { runChatDiagnostics as runChatDiagnosticsLogic } from "@/lib/testing";
+import type { Message } from "genkit";
 
 
 export async function performTrustCheck(
@@ -60,14 +61,9 @@ export async function performTrustCheck(
   }
 }
 
-const formatChatInput = (
-  analysisResults: TrustCheckResult,
-  userMessage: string
-) => {
-  const { analysis, summary } = analysisResults;
-
-  // Create a single formatted string with all the data.
-  const analysisData = `
+const formatAnalysisDataForPrompt = (analysisResults: TrustCheckResult): string => {
+    const { analysis, summary } = analysisResults;
+    return `
 - Query: ${analysis.query}
 - Overall Summary: ${summary.summary}
 - Domain Reputation: Score: ${analysis.domainReputation.score}/100 from ${analysis.domainReputation.provider}.
@@ -79,28 +75,22 @@ const formatChatInput = (
 - Typosquatting Check: Is Potential Typosquatting: ${analysis.typosquattingCheck.isPotentialTyposquatting}. Suspected Original: ${analysis.typosquattingCheck.suspectedOriginalDomain}. Reason: ${analysis.typosquattingCheck.reason}
 - Email Verification: ${analysis.isEmail && analysis.emailVerification ? `Deliverable: ${analysis.emailVerification.isDeliverable}, Disposable: ${analysis.emailVerification.isDisposable}, Catch-All: ${analysis.emailVerification.isCatchAll}.` : 'N/A'}
   `.trim();
-
-  return {
-    analysisData,
-    userMessage,
-  };
-};
+}
 
 
 export async function chatAboutResults(
-  analysisResults: TrustCheckResult,
+  history: Message[],
   userMessage: string
 ): Promise<{ reply: string } | { error: string }> {
   if (!userMessage) {
     return { error: "Message is empty." };
   }
-  if (!analysisResults) {
+  if (!history) {
     return { error: "Analysis results not found." };
   }
 
   try {
-    const chatInput = formatChatInput(analysisResults, userMessage);
-    const reply = await chatWithResults(chatInput);
+    const reply = await chatWithResults(history, userMessage);
     return { reply };
   } catch (e) {
     console.error("Error in chat action:", e);
@@ -114,7 +104,8 @@ export async function runChatDiagnostics(
     userMessage: string
 ): Promise<{ logs: string[] } | { error: string }> {
     try {
-        const logs = await runChatDiagnosticsLogic(result, userMessage, formatChatInput);
+        const analysisData = formatAnalysisDataForPrompt(result);
+        const logs = await runChatDiagnosticsLogic(analysisData, userMessage);
         return { logs };
     } catch (e) {
         console.error("Error running diagnostics:", e);
