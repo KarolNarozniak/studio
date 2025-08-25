@@ -1,6 +1,7 @@
 "use server";
 
 import { summarizeTrustCheckResults } from "@/ai/flows/summarize-trust-check-results";
+import { chatWithResults } from "@/ai/flows/chat-with-results";
 import { getMockAnalysisResults } from "@/lib/mocks";
 import type { TrustCheckResult } from "@/lib/types";
 
@@ -43,5 +44,25 @@ export async function performTrustCheck(
   } catch (e) {
     console.error("Error performing trust check:", e);
     return { error: "An unexpected error occurred during analysis." };
+  }
+}
+
+export async function chatAboutResults(
+  analysisResults: TrustCheckResult,
+  userMessage: string
+): Promise<{ reply: string } | { error: string }> {
+  if (!userMessage) {
+    return { error: "Message is empty." };
+  }
+  if (!analysisResults) {
+    return { error: "Analysis results not found." };
+  }
+
+  try {
+    const reply = await chatWithResults({ analysisResults, userMessage });
+    return { reply };
+  } catch (e) {
+    console.error("Error in chat action:", e);
+    return { error: "An unexpected error occurred during the chat." };
   }
 }

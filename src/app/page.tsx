@@ -7,6 +7,7 @@ import { performTrustCheck } from "@/app/actions";
 import TrustCheckLogo from "@/components/trustcheck-logo";
 import { TrustCheckForm } from "@/components/trustcheck-form";
 import { TrustCheckResults } from "@/components/trustcheck-results";
+import { TrustCheckChat } from "@/components/trustcheck-chat";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
@@ -58,7 +59,13 @@ export default function Home() {
         </Card>
         
         {isLoading && <LoadingSkeleton />}
-        {result && <TrustCheckResults result={result} />}
+        {result && (
+            <div className="space-y-8">
+                <TrustCheckResults result={result} />
+                <TrustCheckChat result={result} />
+            </div>
+        )}
+
       </main>
 
       <footer className="w-full max-w-4xl mx-auto text-center mt-auto pt-8">
