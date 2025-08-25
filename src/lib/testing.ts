@@ -1,8 +1,9 @@
-// This is a new file: src/lib/testing.ts
 'use server';
 
 import type { TrustCheckResult } from './types';
 import { chatWithResults, type ChatWithResultsInput } from '@/ai/flows/chat-with-results';
+import { z } from 'genkit';
+
 
 // The formatter function signature now matches the updated formatChatInput
 type FormatterFn = (result: TrustCheckResult, userMessage: string) => ChatWithResultsInput;
