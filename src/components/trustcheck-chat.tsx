@@ -2,12 +2,11 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { z } from 'zod';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form'; // Corrected: import useForm from react-hook-form
+import { zodResolver } from '@hookform/resolvers/zod'; // Corrected: import zodResolver
 import { Bot, Loader2, Send, User, AlertTriangle } from 'lucide-react';
-import type { Message } from 'genkit';
 
-import type { TrustCheckResult } from '@/lib/types';
+import type { TrustCheckResult, ChatMessage } from '@/lib/types'; // Using shared ChatMessage type
 import { chatAboutResults } from '@/app/actions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
@@ -17,6 +16,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { Skeleton } from './ui/skeleton';
+
+// Removed local ChatMessage interface, it's now imported from '@/lib/types'
 
 interface DisplayMessage {
   role: 'user' | 'assistant';
@@ -46,21 +47,24 @@ const formatAnalysisDataForPrompt = (analysisResults: TrustCheckResult): string 
 
 export function TrustCheckChat({ result }: { result: TrustCheckResult }) {
   const [displayMessages, setDisplayMessages] = useState<DisplayMessage[]>([]);
-  const [history, setHistory] = useState<Message[]>([]);
+  const [history, setHistory] = useState<ChatMessage[]>([]); // Using imported ChatMessage type
   const [isLoading, setIsLoading] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Initialize history with system prompt when result is available
     const analysisData = formatAnalysisDataForPrompt(result);
-    const systemPrompt = `You are an AI assistant for the TrustCheck application. Your task is to answer user questions based on the security analysis report for an email or domain. Use ONLY the information provided in the report. If the information is not in the report, state that you do not have that information. Here is the full analysis report:\n---\n${analysisData}\n---`;
+    const systemPrompt = `You are an AI assistant for the TrustCheck application. Your task is to answer user questions based on the security analysis report for an email or domain. Use ONLY the information provided in the report. If the information is not in the report, state that you do not have that information.
+Respond in the language the user is asking in. If the language is not clear or it's not English or Polish, default to English.
+Oto pełny raport analizy (Here is the full analysis report):
+---
+${analysisData}
+---`;
     
-    setHistory([{ role: 'system', content: [{ text: systemPrompt }] }]);
+    setHistory([{ role: 'system', parts: [{ text: systemPrompt }] }]);
     setDisplayMessages([]);
   }, [result]);
 
   useEffect(() => {
-    // Scroll to the bottom when messages change
     if (scrollAreaRef.current) {
       scrollAreaRef.current.scrollTo({
         top: scrollAreaRef.current.scrollHeight,
@@ -82,16 +86,15 @@ export function TrustCheckChat({ result }: { result: TrustCheckResult }) {
 
     try {
       const response = await chatAboutResults(history, values.message);
-      if (response.error) {
+      if ('error' in response) {
         throw new Error(response.error);
       }
       const assistantMessage: DisplayMessage = { role: 'assistant', content: response.reply };
       setDisplayMessages((prev) => [...prev, assistantMessage]);
       
-      // Update history for next turn
       setHistory(prev => [...prev, 
-        { role: 'user', content: [{ text: values.message }] },
-        { role: 'model', content: [{ text: response.reply }] }
+        { role: 'user', parts: [{ text: values.message }] },
+        { role: 'model', parts: [{ text: response.reply }] }
       ]);
 
     } catch (error) {

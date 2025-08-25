@@ -1,39 +1,42 @@
 'use server';
 /**
- * @fileOverview Enables a chat conversation about TrustCheck analysis results.
- *
- * - chatWithResults - A function to handle chat messages regarding the analysis.
+ * @fileOverview A simple AI chat flow for answering questions about trust check results.
  */
+
 import {ai} from '@/ai/genkit';
-import {Message} from 'genkit';
+import type {ChatMessage} from '@/lib/types';
 
 export async function chatWithResults(
-  history: Message[],
+  history: ChatMessage[],
   userMessage: string
 ): Promise<string> {
+  // Add the new user message to the history
+  const fullHistory: ChatMessage[] = [
+    ...history,
+    {role: 'user', parts: [{text: userMessage}]},
+  ];
+
   try {
     const {output} = await ai.generate({
       model: 'googleai/gemini-2.0-flash',
-      history: history,
-      prompt: userMessage,
+      history: fullHistory,
+      prompt: userMessage, // The prompt can be simple as the context is in the history
     });
 
-    // The AI can sometimes return a null output without throwing an error.
-    // We must check for this case before trying to access properties on it.
-    if (!output) {
-      return "I'm sorry, the AI model did not return a response. Please try again.";
+    // It's crucial to check if output exists and has a text property.
+    if (output && typeof output.text === 'string') {
+      return output.text;
+    } else {
+      // Handle cases where the model returns no valid text response
+      const responseText = output?.text ?? 'No text property in response';
+      console.warn('AI did not return a valid text response:', responseText);
+      return "I'm sorry, I couldn't generate a valid response. Please try again.";
     }
-
-    const text = output.text;
-
-    if (!text) {
-      return "I'm sorry, I wasn't able to generate a response for that. Please try rephrasing your question.";
-    }
-    return text;
   } catch (e) {
     console.error('Error in chatWithResults flow:', e);
     const errorMessage =
       e instanceof Error ? e.message : 'An unexpected error occurred.';
+    // Return a user-friendly error message
     return `Sorry, an error occurred: ${errorMessage}`;
   }
 }

@@ -1,115 +1,91 @@
-"use server";
+'use server';
+import { chatWithResults } from '@/ai/flows/chat-with-results';
+import type { ChatMessage, TrustCheckResult } from '@/lib/types';
+import { getMockAnalysisResults } from '@/lib/mocks';
+import { summarizeTrustCheckResults } from '@/ai/flows/summarize-trust-check-results';
+import { runChatDiagnostics as runChatDiagnosticsLogic } from '@/lib/testing';
 
-import { summarizeTrustCheckResults } from "@/ai/flows/summarize-trust-check-results";
-import { chatWithResults } from "@/ai/flows/chat-with-results";
-import { detectTyposquatting } from "@/ai/flows/detect-typosquatting";
-import { getMockAnalysisResults } from "@/lib/mocks";
-import type { TrustCheckResult } from "@/lib/types";
-import { runChatDiagnostics as runChatDiagnosticsLogic } from "@/lib/testing";
-import type { Message } from "genkit";
-
-
+/**
+ * A server action to perform the trust check analysis.
+ * @param formData The form data containing the user's query.
+ * @returns The full trust check result.
+ */
 export async function performTrustCheck(
   formData: FormData
-): Promise<TrustCheckResult | { error: string }> {
-  const query = formData.get("query") as string;
+): Promise<TrustCheckResult> {
+  const query = formData.get('query') as string;
 
   if (!query) {
-    return { error: "Input query is missing." };
+    throw new Error('Query is required.');
   }
 
-  // Basic validation
-  const domainRegex = /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9]$/i;
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!domainRegex.test(query) && !emailRegex.test(query)) {
-    return { error: "Please enter a valid domain or email address." };
-  }
-  
-  try {
-    // 1. Get mock analysis data
-    const analysis = getMockAnalysisResults(query);
+  // 1. Get mock analysis data
+  const analysis = getMockAnalysisResults(query);
 
-    // 2. Perform typosquatting check (in parallel)
-    const domain = analysis.isEmail ? query.split('@')[1] : query;
-    const typosquattingPromise = detectTyposquatting({ domain });
+  // 2. Get AI summary
+  const summary = await summarizeTrustCheckResults({
+    domainReputation: `Score: ${analysis.domainReputation.score}/100 from ${analysis.domainReputation.provider}.`,
+    whoisData: `Domain created on ${analysis.whoisData.creationDate} and expires on ${analysis.whoisData.expiryDate}. Registrar: ${analysis.whoisData.registrar}. Owner: ${analysis.whoisData.owner || 'N/A'}.`,
+    dnsRecords: `MX: ${analysis.dnsRecords.mx}, SPF: ${analysis.dnsRecords.spf}, DKIM: ${analysis.dnsRecords.dkim}, DMARC: ${analysis.dnsRecords.dmarc}.`,
+    blacklistStatus: `Is Listed: ${analysis.blacklistStatus.isListed}. Sources: ${analysis.blacklistStatus.sources.join(', ') || 'None'}.`,
+    threatIntelligence: `Is Known Threat: ${analysis.threatIntelligence.isKnownThreat}. Threat Types: ${analysis.threatIntelligence.threatTypes.join(', ') || 'None'}.`,
+    historicalData: `Ownership Changes: ${analysis.historicalData.changes}. Last Change: ${analysis.historicalData.lastChangeDate}.`,
+    typosquattingCheck: `Is Potential Typosquatting: ${analysis.typosquattingCheck.isPotentialTyposquatting}. Suspected Original: ${analysis.typosquattingCheck.suspectedOriginalDomain}. Reason: ${analysis.typosquattingCheck.reason}`,
+    emailVerification: analysis.isEmail && analysis.emailVerification ? `Deliverable: ${analysis.emailVerification.isDeliverable}, Disposable: ${analysis.emailVerification.isDisposable}, Catch-All: ${analysis.emailVerification.isCatchAll}.` : 'N/A',
+  });
 
-    // 3. Wait for all checks and format data for the summary AI prompt
-    const typosquattingResult = await typosquattingPromise;
-    analysis.typosquattingCheck = typosquattingResult;
-
-
-    const aiInput = {
-      domainReputation: `Score: ${analysis.domainReputation.score}/100 by ${analysis.domainReputation.provider}`,
-      whoisData: `Created: ${analysis.whoisData.creationDate}, Expires: ${analysis.whoisData.expiryDate}, Registrar: ${analysis.whoisData.registrar}`,
-      dnsRecords: `MX: ${analysis.dnsRecords.mx}, SPF: ${analysis.dnsRecords.spf}, DKIM: ${analysis.dnsRecords.dkim}, DMARC: ${analysis.dnsRecords.dmarc}`,
-      blacklistStatus: `Listed: ${analysis.blacklistStatus.isListed} on ${analysis.blacklistStatus.sources.length} blacklists.`,
-      threatIntelligence: `Known Threat: ${analysis.threatIntelligence.isKnownThreat}, Types: ${analysis.threatIntelligence.threatTypes.join(", ") || "N/A"}`,
-      historicalData: `Changes: ${analysis.historicalData.changes}, Last Change: ${analysis.historicalData.lastChangeDate}`,
-      typosquattingCheck: `Potential Typosquatting: ${typosquattingResult.isPotentialTyposquatting}. Suspected Original: ${typosquattingResult.suspectedOriginalDomain}. Reason: ${typosquattingResult.reason}`,
-      emailVerification: analysis.emailVerification ? `Deliverable: ${analysis.emailVerification.isDeliverable}, Disposable: ${analysis.emailVerification.isDisposable}` : 'Not an email address.',
-    };
-
-    // 4. Call the summary AI flow
-    const summary = await summarizeTrustCheckResults(aiInput);
-
-    // 5. Return combined results
-    return { analysis, summary };
-  } catch (e) {
-    console.error("Error performing trust check:", e);
-    const errorMessage = e instanceof Error ? e.message : "An unexpected error occurred during analysis.";
-    return { error: errorMessage };
-  }
-}
-
-const formatAnalysisDataForPrompt = (analysisResults: TrustCheckResult): string => {
-    const { analysis, summary } = analysisResults;
-    return `
-- Query: ${analysis.query}
-- Overall Summary: ${summary.summary}
-- Domain Reputation: Score: ${analysis.domainReputation.score}/100 from ${analysis.domainReputation.provider}.
-- WHOIS Data: Domain created on ${analysis.whoisData.creationDate} and expires on ${analysis.whoisData.expiryDate}. Registrar: ${analysis.whoisData.registrar}. Owner: ${analysis.whoisData.owner || 'N/A'}.
-- DNS Records: MX: ${analysis.dnsRecords.mx}, SPF: ${analysis.dnsRecords.spf}, DKIM: ${analysis.dnsRecords.dkim}, DMARC: ${analysis.dnsRecords.dmarc}.
-- Blacklist Status: Is Listed: ${analysis.blacklistStatus.isListed}. Sources: ${analysis.blacklistStatus.sources.join(', ') || 'None'}.
-- Threat Intelligence: Is Known Threat: ${analysis.threatIntelligence.isKnownThreat}. Threat Types: ${analysis.threatIntelligence.threatTypes.join(", ") || "None"}.
-- Historical Data: Ownership Changes: ${analysis.historicalData.changes}. Last Change: ${analysis.historicalData.lastChangeDate}.
-- Typosquatting Check: Is Potential Typosquatting: ${analysis.typosquattingCheck.isPotentialTyposquatting}. Suspected Original: ${analysis.typosquattingCheck.suspectedOriginalDomain}. Reason: ${analysis.typosquattingCheck.reason}
-- Email Verification: ${analysis.isEmail && analysis.emailVerification ? `Deliverable: ${analysis.emailVerification.isDeliverable}, Disposable: ${analysis.emailVerification.isDisposable}, Catch-All: ${analysis.emailVerification.isCatchAll}.` : 'N/A'}
-  `.trim();
+  return { analysis, summary };
 }
 
 
+/**
+ * A server action to stream the results of a trust check analysis.
+ * @param history A history of the chat messages.
+ * @param userMessage The user's message.
+ * @returns The AI's response to the user's message.
+ */
 export async function chatAboutResults(
-  history: Message[],
+  history: ChatMessage[], // Use the ChatMessage type here
   userMessage: string
 ): Promise<{ reply: string } | { error: string }> {
-  if (!userMessage) {
-    return { error: "Message is empty." };
-  }
-  if (!history) {
-    return { error: "Analysis results not found." };
-  }
-
   try {
     const reply = await chatWithResults(history, userMessage);
     return { reply };
   } catch (e) {
-    console.error("Error in chat action:", e);
-    const errorMessage = e instanceof Error ? e.message : "An unexpected error occurred during the chat.";
-    return { error: errorMessage };
+    const error = e instanceof Error ? e.message : 'An unexpected error occurred.';
+    console.error('Error in chatAboutResults action:', error);
+    return { error };
   }
 }
 
+/**
+ * A server action to run diagnostics on the chat functionality.
+ * @param result The full trust check result.
+ * @param userMessage A test message to send.
+ * @returns An object containing the logs or an error.
+ */
 export async function runChatDiagnostics(
-    result: TrustCheckResult,
-    userMessage: string
+  result: TrustCheckResult,
+  userMessage: string
 ): Promise<{ logs: string[] } | { error: string }> {
-    try {
-        const analysisData = formatAnalysisDataForPrompt(result);
-        const logs = await runChatDiagnosticsLogic(analysisData, userMessage);
-        return { logs };
-    } catch (e) {
-        console.error("Error running diagnostics:", e);
-        const errorMessage = e instanceof Error ? e.message : "An unexpected error occurred during diagnostics.";
-        return { error: errorMessage };
-    }
+  try {
+    const analysisData = `
+- Query: ${result.analysis.query}
+- Overall Summary: ${result.summary.summary}
+- Domain Reputation: Score: ${result.analysis.domainReputation.score}/100 from ${result.analysis.domainReputation.provider}.
+- WHOIS Data: Domain created on ${result.analysis.whoisData.creationDate} and expires on ${result.analysis.whoisData.expiryDate}. Registrar: ${result.analysis.whoisData.registrar}. Owner: ${result.analysis.whoisData.owner || 'N/A'}.
+- DNS Records: MX: ${result.analysis.dnsRecords.mx}, SPF: ${result.analysis.dnsRecords.spf}, DKIM: ${result.analysis.dnsRecords.dkim}, DMARC: ${result.analysis.dnsRecords.dmarc}.
+- Blacklist Status: Is Listed: ${result.analysis.blacklistStatus.isListed}. Sources: ${result.analysis.blacklistStatus.sources.join(', ') || 'None'}.
+- Threat Intelligence: Is Known Threat: ${result.analysis.threatIntelligence.isKnownThreat}. Threat Types: ${result.analysis.threatIntelligence.threatTypes.join(", ") || "None"}.
+- Historical Data: Ownership Changes: ${result.analysis.historicalData.changes}. Last Change: ${result.analysis.historicalData.lastChangeDate}.
+- Typosquatting Check: Is Potential Typosquatting: ${result.analysis.typosquattingCheck.isPotentialTyposquatting}. Suspected Original: ${result.analysis.typosquattingCheck.suspectedOriginalDomain}. Reason: ${result.analysis.typosquattingCheck.reason}
+- Email Verification: ${result.analysis.isEmail && result.analysis.emailVerification ? `Deliverable: ${result.analysis.emailVerification.isDeliverable}, Disposable: ${result.analysis.emailVerification.isDisposable}, Catch-All: ${result.analysis.emailVerification.isCatchAll}.` : 'N/A'}
+  `.trim();
+
+    const logs = await runChatDiagnosticsLogic(analysisData, userMessage);
+    return { logs };
+  } catch (e) {
+    const error = e instanceof Error ? e.message : 'An unexpected error occurred.';
+    return { error };
+  }
 }

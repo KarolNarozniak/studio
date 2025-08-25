@@ -1,66 +1,61 @@
-import type { SummarizeTrustCheckResultsOutput } from "@/ai/flows/summarize-trust-check-results";
+// src/lib/types.ts
 
-export interface DomainReputation {
-    score: number;
-    provider: string;
-}
+import type {SummarizeTrustCheckResultsOutput} from '@/ai/flows/summarize-trust-check-results';
 
-export interface WhoisData {
-  domain: string;
-  registrar: string;
-  creationDate: string;
-  expiryDate: string;
-  owner: string;
-}
-
-export interface DnsRecords {
-  mx: boolean;
-  spf: boolean;
-  dkim: boolean;
-  dmarc: boolean;
-}
-
-export interface BlacklistStatus {
-  isListed: boolean;
-  sources: string[];
-}
-
-export interface ThreatIntelligenceReport {
-  isKnownThreat: boolean;
-  threatTypes: string[];
-}
-
-export interface HistoricalData {
-    changes: number;
-    lastChangeDate: string;
-}
-
-export interface EmailVerification {
-    isDeliverable: boolean;
-    isDisposable: boolean;
-    isCatchAll: boolean;
-}
-
-export interface TyposquattingCheck {
-  isPotentialTyposquatting: boolean;
-  suspectedOriginalDomain: string;
-  reason: string;
-}
-
+// A generic structure for a trust check analysis result
 export interface AnalysisResults {
   query: string;
   isEmail: boolean;
-  domainReputation: DomainReputation;
-  whoisData: WhoisData;
-  dnsRecords: DnsRecords;
-  blacklistStatus: BlacklistStatus;
-  threatIntelligence: ThreatIntelligenceReport;
-  historicalData: HistoricalData;
-  typosquattingCheck: TyposquattingCheck;
-  emailVerification?: EmailVerification;
+  domainReputation: {
+    score: number;
+    provider: string;
+  };
+  whoisData: {
+    domain: string;
+    registrar: string;
+    creationDate: string;
+    expiryDate: string;
+    owner: string | null;
+  };
+  dnsRecords: {
+    mx: boolean;
+    spf: boolean;
+    dkim: boolean;
+    dmarc: boolean;
+  };
+  blacklistStatus: {
+    isListed: boolean;
+    sources: string[];
+  };
+  threatIntelligence: {
+    isKnownThreat: boolean;
+    threatTypes: string[];
+  };
+  historicalData: {
+    changes: number;
+    lastChangeDate: string;
+  };
+  typosquattingCheck: {
+    isPotentialTyposquatting: boolean;
+    suspectedOriginalDomain: string;
+    reason: string;
+  };
+  emailVerification?: {
+    isDeliverable: boolean;
+    isDisposable: boolean;
+    isCatchAll: boolean;
+  };
 }
 
+
+// The combined result of a trust check
 export interface TrustCheckResult {
   analysis: AnalysisResults;
   summary: SummarizeTrustCheckResultsOutput;
+}
+
+// A generic structure for chat messages
+export interface ChatMessage {
+  role: 'user' | 'model' | 'system';
+  parts: { text: string }[];
 }
