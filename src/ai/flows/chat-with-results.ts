@@ -12,12 +12,17 @@ export async function chatWithResults(
   userMessage: string
 ): Promise<string> {
   try {
-    // The correct way to handle conversation with a stateless model is to provide the full history.
     const {output} = await ai.generate({
       model: 'googleai/gemini-2.0-flash',
       history: history,
       prompt: userMessage,
     });
+
+    // The AI can sometimes return a null output without throwing an error.
+    // We must check for this case before trying to access properties on it.
+    if (!output) {
+      return "I'm sorry, the AI model did not return a response. Please try again.";
+    }
 
     const text = output.text;
 
