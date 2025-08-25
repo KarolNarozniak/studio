@@ -1,9 +1,17 @@
 'use server';
 
 import type { TrustCheckResult } from './types';
-import { chatWithResults, type ChatWithResultsInput } from '@/ai/flows/chat-with-results';
+import { chatWithResults } from '@/ai/flows/chat-with-results';
 import { z } from 'genkit';
 
+const ChatWithResultsInputSchema = z.object({
+  analysisData: z
+    .string()
+    .describe('A pre-formatted string containing all the analysis results.'),
+  userMessage: z.string().describe("The user's message or question."),
+});
+
+type ChatWithResultsInput = z.infer<typeof ChatWithResultsInputSchema>;
 
 // The formatter function signature now matches the updated formatChatInput
 type FormatterFn = (result: TrustCheckResult, userMessage: string) => ChatWithResultsInput;
