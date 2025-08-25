@@ -53,6 +53,10 @@ const chatWithResultsFlow = ai.defineFlow(
   },
   async input => {
     const {output} = await prompt(input);
-    return output!;
+    // Handle cases where the model might return a null or empty response
+    if (output === null || output === undefined) {
+      return "I'm sorry, I wasn't able to generate a response for that. Please try rephrasing your question.";
+    }
+    return output;
   }
 );
