@@ -30,18 +30,23 @@ const prompt = ai.definePrompt({
   name: 'chatWithResultsPrompt',
   input: {schema: ChatWithResultsInputSchema},
   output: {schema: z.string().nullable()},
-  prompt: `You are a helpful AI assistant embedded in the FakeOrNot application. Your role is to answer user questions based on the provided analysis report.
+  prompt: `You are an AI assistant for the TrustCheck application. Your task is to answer user questions based on the security analysis report for an email or domain.
 
-Do not make up information. If the answer isn't in the provided data, say that you don't have that information. Keep your answers concise and easy to understand.
+I will provide you with the full analysis report. Please use ONLY this information to answer the user's question.
 
-## Analysis Report
+- Summarize the key findings in clear, simple language.
+- Explain what the results mean in terms of trustworthiness or risk.
+- Base your response only on the information provided in the report. If the information is not in the report, state that you do not have that information.
+
+Here is the full analysis report:
+---
 {{{analysisData}}}
-## End of Report
+---
 
-## User's Question
+Here is the user's question:
 "{{{userMessage}}}"
 
-## Your Answer
+Your answer:
 `,
 });
 
@@ -54,7 +59,7 @@ const chatWithResultsFlow = ai.defineFlow(
   async input => {
     const {output} = await prompt(input);
     // Handle cases where the model might return a null or empty response
-    if (output === null || output === undefined) {
+    if (output === null || output === undefined || output.trim() === '') {
       return "I'm sorry, I wasn't able to generate a response for that. Please try rephrasing your question.";
     }
     return output;
