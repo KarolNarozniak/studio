@@ -2,6 +2,7 @@
 
 import { summarizeTrustCheckResults } from "@/ai/flows/summarize-trust-check-results";
 import { chatWithResults } from "@/ai/flows/chat-with-results";
+import { detectTyposquatting } from "@/ai/flows/detect-typosquatting";
 import { getMockAnalysisResults } from "@/lib/mocks";
 import type { TrustCheckResult } from "@/lib/types";
 
@@ -25,7 +26,15 @@ export async function performTrustCheck(
     // 1. Get mock analysis data
     const analysis = getMockAnalysisResults(query);
 
-    // 2. Format data for the AI prompt
+    // 2. Perform typosquatting check (in parallel)
+    const domain = analysis.isEmail ? query.split('@')[1] : query;
+    const typosquattingPromise = detectTyposquatting({ domain });
+
+    // 3. Wait for all checks and format data for the summary AI prompt
+    const typosquattingResult = await typosquattingPromise;
+    analysis.typosquattingCheck = typosquattingResult;
+
+
     const aiInput = {
       domainReputation: `Score: ${analysis.domainReputation.score}/100 by ${analysis.domainReputation.provider}`,
       whoisData: `Created: ${analysis.whoisData.creationDate}, Expires: ${analysis.whoisData.expiryDate}, Registrar: ${analysis.whoisData.registrar}`,
@@ -33,13 +42,14 @@ export async function performTrustCheck(
       blacklistStatus: `Listed: ${analysis.blacklistStatus.isListed} on ${analysis.blacklistStatus.sources.length} blacklists.`,
       threatIntelligence: `Known Threat: ${analysis.threatIntelligence.isKnownThreat}, Types: ${analysis.threatIntelligence.threatTypes.join(", ") || "N/A"}`,
       historicalData: `Changes: ${analysis.historicalData.changes}, Last Change: ${analysis.historicalData.lastChangeDate}`,
+      typosquattingCheck: `Potential Typosquatting: ${typosquattingResult.isPotentialTyposquatting}. Suspected Original: ${typosquattingResult.suspectedOriginalDomain}. Reason: ${typosquattingResult.reason}`,
       emailVerification: analysis.emailVerification ? `Deliverable: ${analysis.emailVerification.isDeliverable}, Disposable: ${analysis.emailVerification.isDisposable}` : 'Not an email address.',
     };
 
-    // 3. Call the AI flow
+    // 4. Call the summary AI flow
     const summary = await summarizeTrustCheckResults(aiInput);
 
-    // 4. Return combined results
+    // 5. Return combined results
     return { analysis, summary };
   } catch (e) {
     console.error("Error performing trust check:", e);

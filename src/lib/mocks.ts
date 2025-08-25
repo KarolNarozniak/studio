@@ -18,14 +18,15 @@ export const getMockAnalysisResults = (query: string): AnalysisResults => {
     const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(query);
     const domain = isEmail ? query.split('@')[1] : query;
     const isRisky = query.includes('bad') || query.includes('phish') || query.includes('spam');
-    
+    const isTyposquat = query.includes('nedflix') || query.includes('gogle');
+
     const creationDate = faker.date.past({ years: isRisky ? 0.1 : 5 });
 
     return {
         query,
         isEmail,
         domainReputation: {
-            score: isRisky ? faker.number.int({ min: 5, max: 40 }) : faker.number.int({ min: 80, max: 99 }),
+            score: isRisky || isTyposquat ? faker.number.int({ min: 5, max: 40 }) : faker.number.int({ min: 80, max: 99 }),
             provider: "ReputableScan Inc.",
         },
         whoisData: {
@@ -42,20 +43,25 @@ export const getMockAnalysisResults = (query: string): AnalysisResults => {
             dmarc: !isRisky && faker.datatype.boolean(),
         },
         blacklistStatus: {
-            isListed: isRisky && faker.datatype.boolean(),
-            sources: isRisky ? ['SpamGuard', 'ThreatBlock'].slice(0, faker.number.int({min: 0, max: 2})) : [],
+            isListed: (isRisky || isTyposquat) && faker.datatype.boolean(),
+            sources: isRisky || isTyposquat ? ['SpamGuard', 'ThreatBlock'].slice(0, faker.number.int({min: 0, max: 2})) : [],
         },
         threatIntelligence: {
-            isKnownThreat: isRisky && faker.datatype.boolean(),
-            threatTypes: isRisky ? ['Phishing', 'Malware'].slice(0, faker.number.int({min: 0, max: 2})) : [],
+            isKnownThreat: (isRisky || isTyposquat) && faker.datatype.boolean(),
+            threatTypes: isRisky || isTyposquat ? ['Phishing', 'Malware'].slice(0, faker.number.int({min: 0, max: 2})) : [],
         },
         historicalData: {
             changes: faker.number.int({ min: 0, max: 5 }),
             lastChangeDate: faker.date.past({ years: 2 }).toISOString().split('T')[0],
         },
+        typosquattingCheck: {
+            isPotentialTyposquatting: isTyposquat,
+            suspectedOriginalDomain: isTyposquat ? 'netflix.com' : 'N/A',
+            reason: isTyposquat ? 'The domain name is a common misspelling of a popular brand.' : 'No direct evidence of typosquatting found.'
+        },
         ...(isEmail && {
             emailVerification: {
-                isDeliverable: !isRisky,
+                isDeliverable: !isRisky && !isTyposquat,
                 isDisposable: isRisky && faker.datatype.boolean(),
                 isCatchAll: faker.datatype.boolean(),
             },

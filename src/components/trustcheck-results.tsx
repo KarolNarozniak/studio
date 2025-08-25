@@ -1,6 +1,6 @@
 "use client";
 
-import type { TrustCheckResult, WhoisData, DnsRecords, BlacklistStatus, ThreatIntelligenceReport, HistoricalData, EmailVerification, DomainReputation } from "@/lib/types";
+import type { TrustCheckResult, WhoisData, DnsRecords, BlacklistStatus, ThreatIntelligenceReport, HistoricalData, EmailVerification, DomainReputation, TyposquattingCheck } from "@/lib/types";
 import {
   Card,
   CardContent,
@@ -31,6 +31,7 @@ import {
   HelpCircle,
   List,
   MailCheck,
+  ScanSearch,
   Server,
   ShieldAlert,
   ShieldCheck,
@@ -91,7 +92,7 @@ const DetailItem = ({ label, value, tooltip }: { label: string; value: React.Rea
         </TooltipProvider>
       )}
     </div>
-    <span className="text-sm font-medium text-foreground">{value}</span>
+    <span className="text-sm font-medium text-foreground text-right">{value}</span>
   </div>
 );
 
@@ -144,6 +145,15 @@ export function TrustCheckResults({ result }: TrustCheckResultsProps) {
           </AccordionTrigger>
           <AccordionContent>
             <DomainReputationSection data={analysis.domainReputation} />
+          </AccordionContent>
+        </AccordionItem>
+
+        <AccordionItem value="item-typosquatting">
+          <AccordionTrigger className="text-lg font-semibold">
+            <SectionIcon icon={ScanSearch} /> Typosquatting Check
+          </AccordionTrigger>
+          <AccordionContent>
+            <TyposquattingSection data={analysis.typosquattingCheck} />
           </AccordionContent>
         </AccordionItem>
 
@@ -213,6 +223,16 @@ const DomainReputationSection = ({ data }: { data: DomainReputation }) => (
         <CardContent className="p-4">
             <DetailItem label="Provider" value={data.provider} />
             <DetailItem label="Score" value={`${data.score} / 100`} />
+        </CardContent>
+    </Card>
+);
+
+const TyposquattingSection = ({ data }: { data: TyposquattingCheck }) => (
+    <Card className="bg-background/50">
+        <CardContent className="p-4">
+            <DetailItem label="Potential Typosquatting" value={<BooleanBadge value={data.isPotentialTyposquatting} />} tooltip="Checks if the domain name is intentionally similar to a popular domain to deceive users." />
+            <DetailItem label="Suspected Original" value={data.suspectedOriginalDomain} />
+            <DetailItem label="Reason" value={data.reason} />
         </CardContent>
     </Card>
 );

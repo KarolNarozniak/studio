@@ -41,6 +41,12 @@ export interface EmailVerification {
     isCatchAll: boolean;
 }
 
+export interface TyposquattingCheck {
+  isPotentialTyposquatting: boolean;
+  suspectedOriginalDomain: string;
+  reason: string;
+}
+
 export interface AnalysisResults {
   query: string;
   isEmail: boolean;
@@ -50,6 +56,7 @@ export interface AnalysisResults {
   blacklistStatus: BlacklistStatus;
   threatIntelligence: ThreatIntelligenceReport;
   historicalData: HistoricalData;
+  typosquattingCheck: TyposquattingCheck;
   emailVerification?: EmailVerification;
 }
 
