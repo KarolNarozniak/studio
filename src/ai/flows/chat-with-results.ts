@@ -3,9 +3,8 @@
  * @fileOverview A simple AI chat flow for answering questions about trust check results.
  */
 
-import { ai } from '@/ai/genkit';
-import type { ChatMessage } from '@/lib/types';
-import { generate } from 'genkit';
+import {ai} from '@/ai/genkit';
+import type {ChatMessage} from '@/lib/types';
 
 /**
  * A simple wrapper around the ai.generate call to handle chat conversations.
@@ -19,16 +18,16 @@ export async function chatWithResults(
 ): Promise<string> {
   // The ai.generate function expects an array of messages with a specific structure.
   // We need to ensure our history matches this structure.
-  const messages = history.map((msg) => ({
+  const messages = history.map(msg => ({
     role: msg.role,
     // The content must be an array of 'Part' objects.
-    content: msg.parts.map((part) => ({ text: part.text })),
+    content: msg.parts.map(part => ({text: part.text})),
   }));
 
   // Add the new user message to the history for this call.
   messages.push({
     role: 'user',
-    content: [{ text: userMessage }],
+    content: [{text: userMessage}],
   });
 
   try {
