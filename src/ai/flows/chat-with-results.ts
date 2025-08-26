@@ -3,39 +3,46 @@
  * @fileOverview A simple AI chat flow for answering questions about trust check results.
  */
 
-import {ai} from '@/ai/genkit';
-import type {ChatMessage} from '@/lib/types';
+import { ai } from '@/ai/genkit';
+import type { ChatMessage } from '@/lib/types';
+import { generate } from 'genkit';
 
+/**
+ * A simple wrapper around the ai.generate call to handle chat conversations.
+ * @param history A history of the chat messages.
+ * @param userMessage The user's message.
+ * @returns The AI's response to the user's message.
+ */
 export async function chatWithResults(
   history: ChatMessage[],
   userMessage: string
 ): Promise<string> {
-  // Add the new user message to the history for this call
-  const fullHistory: ChatMessage[] = [
-    ...history,
-    {role: 'user', parts: [{text: userMessage}]},
-  ];
+  // The ai.generate function expects an array of messages with `role` and `content`.
+  // We need to transform the `parts` array from our ChatMessage type into a single string.
+  const messages = history.map((msg) => ({
+    role: msg.role,
+    content: msg.parts.map((part) => part.text).join('\n'),
+  }));
+
+  // Add the new user message to the history for this call.
+  messages.push({
+    role: 'user',
+    content: userMessage,
+  });
 
   try {
-    const {output} = await ai.generate({
-      model: 'googleai/gemini-2.0-flash',
-      history: fullHistory, // Pass the entire conversation history
+    const response = await ai.generate({
+      messages: messages,
     });
 
-    // It's crucial to check if output exists and has a text property.
-    if (output && typeof output.text === 'string') {
-      return output.text;
-    } else {
-      // Handle cases where the model returns no valid text response
-      const responseText = output?.text ?? 'No text property in response';
-      console.warn('AI did not return a valid text response:', responseText);
+    const text = response.text;
+    if (!text) {
       return "I'm sorry, I couldn't generate a valid response. Please try again.";
     }
+    return text;
   } catch (e) {
+    const error = e instanceof Error ? e.message : 'An unexpected error occurred.';
     console.error('Error in chatWithResults flow:', e);
-    const errorMessage =
-      e instanceof Error ? e.message : 'An unexpected error occurred.';
-    // Return a user-friendly error message
-    return `Sorry, an error occurred: ${errorMessage}`;
+    return `Sorry, an error occurred: ${error}`;
   }
 }
