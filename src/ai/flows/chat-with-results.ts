@@ -20,7 +20,7 @@ export async function chatWithResults(
     const {output} = await ai.generate({
       model: 'googleai/gemini-2.0-flash',
       history: fullHistory,
-      prompt: userMessage, // The prompt can be simple as the context is in the history
+      prompt: userMessage, 
     });
 
     // It's crucial to check if output exists and has a text property.
