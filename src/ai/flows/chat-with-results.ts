@@ -17,17 +17,18 @@ export async function chatWithResults(
   history: ChatMessage[],
   userMessage: string
 ): Promise<string> {
-  // The ai.generate function expects an array of messages with `role` and `content`.
-  // We need to transform the `parts` array from our ChatMessage type into a single string.
+  // The ai.generate function expects an array of messages with a specific structure.
+  // We need to ensure our history matches this structure.
   const messages = history.map((msg) => ({
     role: msg.role,
-    content: msg.parts.map((part) => part.text).join('\n'),
+    // The content must be an array of 'Part' objects.
+    content: msg.parts.map((part) => ({ text: part.text })),
   }));
 
   // Add the new user message to the history for this call.
   messages.push({
     role: 'user',
-    content: userMessage,
+    content: [{ text: userMessage }],
   });
 
   try {
