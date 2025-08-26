@@ -10,7 +10,7 @@ export async function chatWithResults(
   history: ChatMessage[],
   userMessage: string
 ): Promise<string> {
-  // Add the new user message to the history
+  // Add the new user message to the history for this call
   const fullHistory: ChatMessage[] = [
     ...history,
     {role: 'user', parts: [{text: userMessage}]},
@@ -19,8 +19,7 @@ export async function chatWithResults(
   try {
     const {output} = await ai.generate({
       model: 'googleai/gemini-2.0-flash',
-      history: fullHistory,
-      prompt: userMessage, 
+      history: fullHistory, // Pass the entire conversation history
     });
 
     // It's crucial to check if output exists and has a text property.
