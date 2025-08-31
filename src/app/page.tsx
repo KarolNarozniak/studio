@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -49,7 +50,7 @@ export default function Home() {
           </div>
           <nav className="flex gap-6 text-lg text-foreground">
             <Link href="/" className="hover:text-primary transition-colors">Strona główna</Link>
-            <a href="#" className="hover:text-primary transition-colors">Jak to działa?</a>
+            <Link href="/how-it-works" className="hover:text-primary transition-colors">Jak to działa?</Link>
             <Link href="/examples" className="hover:text-primary transition-colors">Przykłady fałszerstw</Link>
           </nav>
         </header>
