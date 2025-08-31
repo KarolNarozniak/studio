@@ -3,9 +3,9 @@
 
 import Link from 'next/link';
 import FakeOrNotLogo from "@/components/fakeornot-logo";
-import { ForgeryExamples } from '@/components/forgery-examples';
+import { Instruction } from '@/components/instruction';
 
-export default function ExamplesPage() {
+export default function InstructionPage() {
   return (
     <div className="flex flex-col items-center min-h-screen p-4 sm:p-6 md:p-8">
       <main className="w-full max-w-5xl mx-auto">
@@ -24,7 +24,7 @@ export default function ExamplesPage() {
           </nav>
         </header>
 
-        <ForgeryExamples />
+        <Instruction />
 
       </main>
 
