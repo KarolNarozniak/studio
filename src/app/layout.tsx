@@ -6,7 +6,7 @@ import { Toaster } from "@/components/ui/toaster";
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
-  title: "FakeOrNot",
+  title: "Fake or Not?",
   description: "Check the trustworthiness of any email or domain.",
 };
 
@@ -16,7 +16,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en">
       <body className={`${inter.variable} font-body antialiased`}>
         {children}
         <Toaster />
