@@ -1,23 +1,20 @@
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 
-type FakeOrNotLogoProps = React.HTMLAttributes<SVGSVGElement>;
+type FakeOrNotLogoProps = {
+  className?: string;
+};
 
 export default function FakeOrNotLogo({ className, ...props }: FakeOrNotLogoProps) {
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={cn("text-primary", className)}
-      {...props}
-    >
-      <path d="M12 2L7 11H17L12 2Z" />
-      <rect x="4" y="13" width="8" height="8" rx="1" />
-      <circle cx="16" cy="17" r="4" />
-    </svg>
+    <div className={cn("relative", className)} {...props}>
+        <Image
+            src="https://northgatelogistics.pl/wp-content/uploads/2023/01/NGLT-kolko-BIALEsrodek.png"
+            alt="North Gate Logistics Logo"
+            width={48}
+            height={48}
+            className="rounded-full"
+        />
+    </div>
   );
 }
