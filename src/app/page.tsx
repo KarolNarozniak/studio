@@ -10,8 +10,7 @@ import { TrustCheckResults } from "@/components/trustcheck-results";
 import { TrustCheckChat } from "@/components/trustcheck-chat";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Terminal } from "lucide-react";
+import Link from 'next/link';
 
 export default function Home() {
   const [result, setResult] = useState<TrustCheckResult | null>(null);
@@ -49,9 +48,9 @@ export default function Home() {
             </h1>
           </div>
           <nav className="flex gap-6 text-lg text-foreground">
-            <a href="#" className="hover:text-primary transition-colors">Strona główna</a>
+            <Link href="/" className="hover:text-primary transition-colors">Strona główna</Link>
             <a href="#" className="hover:text-primary transition-colors">Jak to działa?</a>
-            <a href="#" className="hover:text-primary transition-colors">Przykłady fałszerstw</a>
+            <Link href="/examples" className="hover:text-primary transition-colors">Przykłady fałszerstw</Link>
           </nav>
         </header>
 
