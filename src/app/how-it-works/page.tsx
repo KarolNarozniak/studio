@@ -4,11 +4,13 @@
 import Link from 'next/link';
 import FakeOrNotLogo from "@/components/fakeornot-logo";
 import { HowItWorks } from '@/components/how-it-works';
+import { Instruction } from '@/components/instruction';
+import { Separator } from '@/components/ui/separator';
 
 export default function HowItWorksPage() {
   return (
     <div className="flex flex-col items-center min-h-screen p-4 sm:p-6 md:p-8">
-      <main className="w-full max-w-5xl mx-auto flex flex-col flex-grow justify-center">
+      <main className="w-full max-w-5xl mx-auto flex flex-col flex-grow">
         <header className="flex items-center justify-between text-center mb-8 border-b-2 border-primary pb-4">
           <div className="flex items-center gap-4">
             <FakeOrNotLogo className="w-12 h-12" />
@@ -20,11 +22,16 @@ export default function HowItWorksPage() {
             <Link href="/" className="hover:text-primary transition-colors">Strona główna</Link>
             <Link href="/how-it-works" className="hover:text-primary transition-colors">Jak to działa?</Link>
             <Link href="/examples" className="hover:text-primary transition-colors">Przykłady fałszerstw</Link>
-            <Link href="/instrukcja" className="hover:text-primary transition-colors">Instrukcja</Link>
           </nav>
         </header>
 
-        <HowItWorks />
+        <div className="flex-grow flex items-center justify-center">
+            <HowItWorks />
+        </div>
+        
+        <Separator className="my-12 bg-primary/30 h-0.5" />
+
+        <Instruction />
 
       </main>
 

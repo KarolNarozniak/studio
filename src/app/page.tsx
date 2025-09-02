@@ -52,7 +52,6 @@ export default function Home() {
             <Link href="/" className="hover:text-primary transition-colors">Strona główna</Link>
             <Link href="/how-it-works" className="hover:text-primary transition-colors">Jak to działa?</Link>
             <Link href="/examples" className="hover:text-primary transition-colors">Przykłady fałszerstw</Link>
-            <Link href="/instrukcja" className="hover:text-primary transition-colors">Instrukcja</Link>
           </nav>
         </header>
 
