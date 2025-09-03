@@ -10,7 +10,7 @@ import { TrustCheckForm } from "@/components/trustcheck-form";
 import { TrustCheckResults } from "@/components/trustcheck-results";
 import { TrustCheckChat } from "@/components/trustcheck-chat";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import Link from 'next/link';
 
 export default function Home() {
@@ -56,8 +56,9 @@ export default function Home() {
         </header>
 
         <Card className="mb-8 shadow-lg border-2 border-primary/50 bg-card">
-           <CardHeader>
-             <CardTitle className="text-center text-3xl text-primary">Analizator Maila</CardTitle>
+           <CardHeader className="text-center">
+             <CardTitle className="text-3xl text-primary">Analizator Maila i Domen</CardTitle>
+             <CardDescription>Wprowadź adres e-mail, domenę lub załącz plik .eml do analizy.</CardDescription>
            </CardHeader>
           <CardContent className="p-6">
             <TrustCheckForm onSubmit={handleCheck} isLoading={isLoading} />

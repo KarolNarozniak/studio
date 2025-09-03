@@ -1,26 +1,39 @@
+
 'use server';
 import { chatWithResults } from '@/ai/flows/chat-with-results';
 import type { ChatMessage, TrustCheckResult } from '@/lib/types';
 import { getMockAnalysisResults } from '@/lib/mocks';
 import { summarizeTrustCheckResults } from '@/ai/flows/summarize-trust-check-results';
+import { analyzeEmlFile } from '@/ai/flows/analyze-eml-file';
 import { runChatDiagnostics as runChatDiagnosticsLogic } from '@/lib/testing';
 
 /**
  * A server action to perform the trust check analysis.
- * @param formData The form data containing the user's query.
+ * @param formData The form data containing the user's query or file.
  * @returns The full trust check result.
  */
 export async function performTrustCheck(
   formData: FormData
 ): Promise<TrustCheckResult> {
-  const query = formData.get('query') as string;
+  const query = formData.get('query') as string | null;
+  const file = formData.get('file') as File | null;
 
-  if (!query) {
-    throw new Error('Query is required.');
+  if (!query && !file) {
+    throw new Error('Query or file is required.');
   }
 
-  // 1. Get mock analysis data
-  const analysis = getMockAnalysisResults(query);
+  let analysis;
+
+  if (file) {
+    // 1a. Analyze EML file
+    const fileContent = await file.text();
+    analysis = await analyzeEmlFile({fileName: file.name, fileContent});
+  } else if (query) {
+    // 1b. Get mock analysis data for domain/email
+    analysis = getMockAnalysisResults(query);
+  } else {
+    throw new Error('Invalid input for analysis.');
+  }
 
   // 2. Get AI summary
   const summary = await summarizeTrustCheckResults({
