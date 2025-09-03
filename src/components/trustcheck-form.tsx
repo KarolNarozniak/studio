@@ -20,7 +20,8 @@ import { Input } from "@/components/ui/input";
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_FILE_TYPES = [".eml"];
 
-const formSchema = z.object({
+// Define the base schema first to access its parts for validation
+const baseSchema = z.object({
   query: z.string().optional(),
   file: z
     .custom<FileList>()
@@ -34,7 +35,10 @@ const formSchema = z.object({
         !files || files.length === 0 || ACCEPTED_FILE_TYPES.includes(files[0].name.slice(files[0].name.lastIndexOf('.'))),
       "Only .eml files are accepted."
     ),
-}).refine(
+});
+
+// Apply refinements to the base schema
+const formSchema = baseSchema.refine(
     (data) => !!data.query || (data.file && data.file.length > 0),
     {
         message: "Please enter a domain/email or upload a file.",
@@ -70,8 +74,8 @@ export function TrustCheckForm({ onSubmit, isLoading }: TrustCheckFormProps) {
     if (files && files.length > 0) {
       const file = files[0];
       
-      // Manually validate the file before submitting
-      const fileValidation = formSchema.shape.file.safeParse(files);
+      // Manually validate the file using the base schema
+      const fileValidation = baseSchema.shape.file.safeParse(files);
       if (!fileValidation.success) {
         form.setError("file", { type: "manual", message: fileValidation.error.errors[0].message });
         return;
