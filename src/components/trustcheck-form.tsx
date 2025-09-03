@@ -69,10 +69,23 @@ export function TrustCheckForm({ onSubmit, isLoading }: TrustCheckFormProps) {
     const files = event.target.files;
     if (files && files.length > 0) {
       const file = files[0];
+      
+      // Manually validate the file before submitting
+      const fileValidation = formSchema.shape.file.safeParse(files);
+      if (!fileValidation.success) {
+        form.setError("file", { type: "manual", message: fileValidation.error.errors[0].message });
+        return;
+      }
+
       setSelectedFile(file);
       form.setValue("file", files);
       form.setValue("query", ""); // Clear text input when file is selected
-      form.clearErrors("query");
+      form.clearErrors(); // Clear all errors
+
+      // Trigger submission automatically
+      const formData = new FormData();
+      formData.append("file", file);
+      onSubmit(formData);
     }
   };
 
@@ -88,8 +101,8 @@ export function TrustCheckForm({ onSubmit, isLoading }: TrustCheckFormProps) {
     const formData = new FormData();
     if (values.query) {
         formData.append("query", values.query);
-    }
-    if (values.file && values.file.length > 0) {
+    } else if (values.file && values.file.length > 0) {
+        // This path is now less likely to be used, but kept for robustness
         formData.append("file", values.file[0]);
     }
     onSubmit(formData);
@@ -117,11 +130,11 @@ export function TrustCheckForm({ onSubmit, isLoading }: TrustCheckFormProps) {
                 )}
               />
               <FormMessage className="absolute -bottom-5 left-0 text-xs">
-                {form.formState.errors.query?.message}
+                {form.formState.errors.query?.message || form.formState.errors.file?.message}
               </FormMessage>
             </div>
-          <Button type="submit" disabled={isLoading} className="w-auto h-12 text-base px-6 font-bold">
-            {isLoading ? (
+          <Button type="submit" disabled={isLoading || !!selectedFile} className="w-auto h-12 text-base px-6 font-bold">
+            {isLoading && !selectedFile ? (
               <Loader2 className="animate-spin" />
             ) : (
                 "Sprawdź"
@@ -135,7 +148,7 @@ export function TrustCheckForm({ onSubmit, isLoading }: TrustCheckFormProps) {
             onClick={() => fileInputRef.current?.click()}
             disabled={isLoading}
           >
-            <UploadCloud className="h-6 w-6 text-primary" />
+            {isLoading && selectedFile ? <Loader2 className="animate-spin" /> : <UploadCloud className="h-6 w-6 text-primary" />}
             <span className="sr-only">Upload .eml file</span>
           </Button>
           <input
@@ -147,7 +160,7 @@ export function TrustCheckForm({ onSubmit, isLoading }: TrustCheckFormProps) {
             disabled={isLoading}
           />
         </div>
-        {selectedFile && (
+        {selectedFile && !isLoading && (
             <div className="flex items-center justify-between p-2 bg-muted/50 rounded-md">
                 <div className="flex items-center gap-2 text-sm text-foreground">
                     <FileText className="h-5 w-5 text-primary" />
