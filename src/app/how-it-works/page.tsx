@@ -3,14 +3,16 @@
 
 import Link from 'next/link';
 import FakeOrNotLogo from "@/components/fakeornot-logo";
-import { HowItWorks } from '@/components/how-it-works';
 import { Instruction } from '@/components/instruction';
 import { Separator } from '@/components/ui/separator';
+import { IntroSection } from '@/components/how-it-works/intro-section';
+import { AdvancedTechSection } from '@/components/how-it-works/advanced-tech-section';
+import { AnalysisProcessSection } from '@/components/how-it-works/analysis-process-section';
 
 export default function HowItWorksPage() {
   return (
     <div className="flex flex-col items-center min-h-screen p-4 sm:p-6 md:p-8">
-      <main className="w-full max-w-5xl mx-auto flex flex-col flex-grow">
+      <main className="w-full max-w-6xl mx-auto flex flex-col flex-grow">
         <header className="flex items-center justify-between text-center mb-8 border-b-2 border-primary pb-4">
           <div className="flex items-center gap-4">
             <FakeOrNotLogo className="w-12 h-12" />
@@ -25,11 +27,13 @@ export default function HowItWorksPage() {
           </nav>
         </header>
 
-        <div className="flex-grow flex items-center justify-center">
-            <HowItWorks />
+        <div className="space-y-16 md:space-y-24">
+          <IntroSection />
+          <AdvancedTechSection />
+          <AnalysisProcessSection />
         </div>
         
-        <Separator className="my-12 bg-primary/30 h-0.5" />
+        <Separator className="my-12 md:my-24 bg-primary/30 h-0.5" />
 
         <Instruction />
 
