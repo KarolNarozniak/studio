@@ -159,7 +159,7 @@ export function TrustCheckForm({ onSubmit, isLoading }: TrustCheckFormProps) {
             </div>
         )}
         <p className="text-xs text-center text-muted-foreground pt-2">
-            Wprowadź adres email, domenę, lub kliknij przycisk <UploadCloud className="inline h-3 w-3 align-middle" />, aby dodać plik .eml do analizy.
+            Wprowadź adres email, domenę lub kliknij przycisk <UploadCloud className="inline h-3 w-3 align-middle" />, aby dodać plik .eml do analizy.
         </p>
       </form>
     </Form>

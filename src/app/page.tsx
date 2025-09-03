@@ -58,7 +58,6 @@ export default function Home() {
         <Card className="mb-8 shadow-lg border-2 border-primary/50 bg-card">
            <CardHeader className="text-center">
              <CardTitle className="text-3xl text-primary">Analizator Maila i Domen</CardTitle>
-             <CardDescription>Wprowadź adres e-mail, domenę lub załącz plik .eml do analizy.</CardDescription>
            </CardHeader>
           <CardContent className="p-6">
             <TrustCheckForm onSubmit={handleCheck} isLoading={isLoading} />

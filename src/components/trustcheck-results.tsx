@@ -114,7 +114,10 @@ export function TrustCheckResults({ result }: TrustCheckResultsProps) {
   const { title, Icon, color, progressColor } = getRecommendationInfo(recommendation);
   const confidence = Math.round(confidenceScore * 100);
   const isEmlFile = analysis.query.endsWith('.eml');
-  const displayQuery = isEmlFile ? `${analysis.query} from ${analysis.whoisData.domain}` : analysis.query;
+
+  const resultDescription = isEmlFile 
+    ? `Based on our analysis of '${analysis.query}' from ${analysis.whoisData.domain}, this is our recommendation.`
+    : `Based on our analysis, this is our recommendation for '${analysis.query}'.`
 
   return (
     <div className="space-y-6">
@@ -125,7 +128,7 @@ export function TrustCheckResults({ result }: TrustCheckResultsProps) {
             <div>
               <CardTitle className={`text-3xl ${color}`}>{title}</CardTitle>
               <CardDescription className="text-base">
-                Based on our analysis, this is our recommendation for '{displayQuery}'.
+                {resultDescription}
               </CardDescription>
             </div>
           </div>
@@ -239,8 +242,8 @@ const ContentAnalysisSection = ({ data }: { data: NonNullable<AnalysisResults['c
             <DetailItem label="Content is Suspicious" value={<BooleanBadge value={data.isSuspicious} />} />
             <DetailItem label="Reason" value={data.suspicionReason} />
              <div className="pt-2">
-                <span className="text-sm text-muted-foreground">Extracted Body (first 500 chars)</span>
-                <pre className="mt-1 text-xs whitespace-pre-wrap font-mono bg-muted p-2 rounded-md max-h-48 overflow-y-auto">
+                <span className="text-sm text-muted-foreground">Extracted Body</span>
+                <pre className="mt-1 text-xs whitespace-pre-wrap font-mono bg-muted p-2 rounded-md max-h-96 overflow-y-auto">
                     {data.extractedBody}
                 </pre>
             </div>

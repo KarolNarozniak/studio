@@ -85,7 +85,7 @@ export async function analyzeEmlFile(
             analysisResults.contentAnalysis = {
               isSuspicious: output.isSuspicious,
               suspicionReason: output.suspicionReason,
-              extractedBody: emailBody.substring(0, 500) + (emailBody.length > 500 ? '...' : '') // Truncate for display
+              extractedBody: emailBody, // Store the full body
             }
         }
     }
