@@ -141,7 +141,7 @@ export function TrustCheckResults({ result }: TrustCheckResultsProps) {
             </div>
             <Progress value={confidence} indicatorClassName={progressColor} />
           </div>
-          <p className="text-foreground/90 text-center bg-muted p-4 rounded-lg">{aiSummary}</p>
+          <p className="text-foreground/90 text-justify bg-muted p-4 rounded-lg">{aiSummary}</p>
         </CardContent>
       </Card>
 
