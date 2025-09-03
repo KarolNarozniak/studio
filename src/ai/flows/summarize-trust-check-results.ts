@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview Summarizes TrustCheck analysis results and provides a Fake/Real recommendation.
@@ -40,24 +41,30 @@ const prompt = ai.definePrompt({
   name: 'summarizeTrustCheckResultsPrompt',
   input: {schema: SummarizeTrustCheckResultsInputSchema},
   output: {schema: SummarizeTrustCheckResultsOutputSchema},
-  prompt: `You are an AI chatbot designed to analyze domain/email check results and provide a risk assessment.
+  prompt: `Jesteś analitykiem cyberbezpieczeństwa. Twoim zadaniem jest analiza wyników weryfikacji domeny/emaila i przedstawienie zwięzłego podsumowania oraz rekomendacji dla pracownika firmy logistycznej, który weryfikuje potencjalnego przewoźnika.
 
-  Based on the following information, provide a summary of the findings and a recommendation of either "Fake" or "Real". Also provide a confidence score between 0 and 1.
-  The typosquatting check and the email content analysis are very important. If either indicates a potential threat, the recommendation should almost always be "Fake" with a high confidence score, regardless of other factors.
+  Bazując na poniższych danych, wygeneruj zwięzłe, jedno- lub dwuzdaniowe podsumowanie oraz rekomendację "Fake" (Fałszywy) lub "Real" (Prawdziwy).
+  Odpowiedz w języku polskim.
 
-  Domain Reputation: {{{domainReputation}}}
-  WHOIS Data: {{{whoisData}}}
-  DNS Records: {{{dnsRecords}}}
-  Blacklist Status: {{{blacklistStatus}}}
-  Threat Intelligence: {{{threatIntelligence}}}
-  Historical Data: {{{historicalData}}}
-  Typosquatting Check: {{{typosquattingCheck}}}
-  Email Verification: {{{emailVerification}}}
-  Email Content Analysis: {{{contentAnalysis}}}
+  Pamiętaj, że celem jest ocena wiarygodności partnera biznesowego. Bądź ostrożny w swoich rekomendacjach. Jeśli istnieją jakiekolwiek poważne sygnały ostrzegawcze (np. podejrzenie typosquattingu, zła reputacja, obecność na czarnych listach, podejrzana treść maila), rekomendacja powinna brzmieć "Fake".
 
-  Respond in a format that is easily understandable by a non-technical user.
-  Be concise and to the point in the summary.
-  The confidence score should reflect the certainty of your recommendation based on the available data.
+  Format podsumowania powinien być podobny do tego przykładu:
+  "Domena ma dobrą reputację, nie jest na czarnych listach i nie wygląda na próbę typosquattingu. Rekordy DNS są w większości poprawne. Rezultat: Możesz nawiązać współpracę."
+  LUB
+  "Domena jest potencjalną próbą typosquattingu i znajduje się na czarnej liście. Reputacja jest bardzo niska. Rezultat: Sprawdź głębiej dany mail/domenę, zalecana najwyższa ostrożność."
+
+  Twoja odpowiedź musi być w formacie JSON.
+
+  Dane do analizy:
+  Reputacja domeny: {{{domainReputation}}}
+  Dane WHOIS: {{{whoisData}}}
+  Rekordy DNS: {{{dnsRecords}}}
+  Status na czarnej liście: {{{blacklistStatus}}}
+  Analiza zagrożeń: {{{threatIntelligence}}}
+  Dane historyczne: {{{historicalData}}}
+  Sprawdzenie pod kątem typosquattingu: {{{typosquattingCheck}}}
+  Weryfikacja e-maila: {{{emailVerification}}}
+  Analiza treści e-maila: {{{contentAnalysis}}}
 `,
 });
 
@@ -72,3 +79,4 @@ const summarizeTrustCheckResultsFlow = ai.defineFlow(
     return output!;
   }
 );
+
