@@ -31,8 +31,15 @@ const formSchema = z.object({
 
 const formatAnalysisDataForPrompt = (analysisResults: TrustCheckResult): string => {
     const { analysis, summary } = analysisResults;
+    const isEmlAnalysis = analysis.query.endsWith('.eml');
+    
+    // If it's an EML analysis, the 'whoisData.domain' actually holds the sender's email.
+    // The 'query' holds the filename. We want the chat to be aware of the sender's email.
+    const senderInfo = isEmlAnalysis ? `- Sender's Email: ${analysis.whoisData.domain}` : '';
+
     return `
 - Query: ${analysis.query}
+${senderInfo}
 - Overall Summary: ${summary.summary}
 - Domain Reputation: Score: ${analysis.domainReputation.score}/100 from ${analysis.domainReputation.provider}.
 - WHOIS Data: Domain created on ${analysis.whoisData.creationDate} and expires on ${analysis.whoisData.expiryDate}. Registrar: ${analysis.whoisData.registrar}. Owner: ${analysis.whoisData.owner || 'N/A'}.
@@ -55,6 +62,7 @@ export function TrustCheckChat({ result }: { result: TrustCheckResult }) {
   useEffect(() => {
     const analysisData = formatAnalysisDataForPrompt(result);
     const systemPrompt = `You are an AI assistant for the TrustCheck application. Your task is to answer user questions based on the security analysis report for an email or domain. Use ONLY the information provided in the report. If the information is not in the report, state that you do not have that information.
+When an .eml file is analyzed, the 'Query' field is the filename, and the 'Sender's Email' field is the extracted sender address.
 Respond in the language the user is asking in. If the language is not clear or it's not English or Polish, default to English.
 Oto pełny raport analizy (Here is the full analysis report):
 ---

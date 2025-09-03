@@ -83,18 +83,22 @@ export async function runChatDiagnostics(
   userMessage: string
 ): Promise<{ logs: string[] } | { error: string }> {
   try {
+    const { analysis, summary } = result;
+    const isEmlAnalysis = analysis.query.endsWith('.eml');
+
     const analysisData = `
-- Query: ${result.analysis.query}
-- Overall Summary: ${result.summary.summary}
-- Domain Reputation: Score: ${result.analysis.domainReputation.score}/100 from ${result.analysis.domainReputation.provider}.
-- WHOIS Data: Domain created on ${result.analysis.whoisData.creationDate} and expires on ${result.analysis.whoisData.expiryDate}. Registrar: ${result.analysis.whoisData.registrar}. Owner: ${result.analysis.whoisData.owner || 'N/A'}.
-- DNS Records: MX: ${result.analysis.dnsRecords.mx}, SPF: ${result.analysis.dnsRecords.spf}, DKIM: ${result.analysis.dnsRecords.dkim}, DMARC: ${result.analysis.dnsRecords.dmarc}.
-- Blacklist Status: Is Listed: ${result.analysis.blacklistStatus.isListed}. Sources: ${result.analysis.blacklistStatus.sources.join(', ') || 'None'}.
-- Threat Intelligence: Is Known Threat: ${result.analysis.threatIntelligence.isKnownThreat}. Threat Types: ${result.analysis.threatIntelligence.threatTypes.join(", ") || "None"}.
-- Historical Data: Ownership Changes: ${result.analysis.historicalData.changes}. Last Change: ${result.analysis.historicalData.lastChangeDate}.
-- Typosquatting Check: Is Potential Typosquatting: ${result.analysis.typosquattingCheck.isPotentialTyposquatting}. Suspected Original: ${result.analysis.typosquattingCheck.suspectedOriginalDomain}. Reason: ${result.analysis.typosquattingCheck.reason}
-- Email Verification: ${result.analysis.isEmail && result.analysis.emailVerification ? `Deliverable: ${result.analysis.emailVerification.isDeliverable}, Disposable: ${result.analysis.emailVerification.isDisposable}, Catch-All: ${result.analysis.emailVerification.isCatchAll}.` : 'N/A'}
-- E-mail Content Analysis: ${result.analysis.contentAnalysis ? `Suspicious: ${result.analysis.contentAnalysis.isSuspicious}. Reason: ${result.analysis.contentAnalysis.suspicionReason}` : 'N/A'}
+- Query: ${analysis.query}
+${isEmlAnalysis ? `- Sender's Email: ${analysis.whoisData.domain}` : ''}
+- Overall Summary: ${summary.summary}
+- Domain Reputation: Score: ${analysis.domainReputation.score}/100 from ${analysis.domainReputation.provider}.
+- WHOIS Data: Domain created on ${analysis.whoisData.creationDate} and expires on ${analysis.whoisData.expiryDate}. Registrar: ${analysis.whoisData.registrar}. Owner: ${analysis.whoisData.owner || 'N/A'}.
+- DNS Records: MX: ${analysis.dnsRecords.mx}, SPF: ${analysis.dnsRecords.spf}, DKIM: ${analysis.dnsRecords.dkim}, DMARC: ${analysis.dnsRecords.dmarc}.
+- Blacklist Status: Is Listed: ${analysis.blacklistStatus.isListed}. Sources: ${analysis.blacklistStatus.sources.join(', ') || 'None'}.
+- Threat Intelligence: Is Known Threat: ${analysis.threatIntelligence.isKnownThreat}. Threat Types: ${analysis.threatIntelligence.threatTypes.join(", ") || "None"}.
+- Historical Data: Ownership Changes: ${analysis.historicalData.changes}. Last Change: ${analysis.historicalData.lastChangeDate}.
+- Typosquatting Check: Is Potential Typosquatting: ${analysis.typosquattingCheck.isPotentialTyposquatting}. Suspected Original: ${analysis.typosquattingCheck.suspectedOriginalDomain}. Reason: ${analysis.typosquattingCheck.reason}
+- Email Verification: ${analysis.isEmail && analysis.emailVerification ? `Deliverable: ${analysis.emailVerification.isDeliverable}, Disposable: ${analysis.emailVerification.isDisposable}, Catch-All: ${analysis.emailVerification.isCatchAll}.` : 'N/A'}
+- E-mail Content Analysis: ${analysis.contentAnalysis ? `Suspicious: ${analysis.contentAnalysis.isSuspicious}. Reason: ${analysis.contentAnalysis.suspicionReason}` : 'N/A'}
   `.trim();
 
     const logs = await runChatDiagnosticsLogic(analysisData, userMessage);
