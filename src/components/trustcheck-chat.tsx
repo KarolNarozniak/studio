@@ -27,7 +27,7 @@ interface DisplayMessage {
 }
 
 const formSchema = z.object({
-  message: z.string().min(1, { message: 'Message cannot be empty.' }),
+  message: z.string().min(1, { message: 'Wiadomość nie może być pusta.' }),
 });
 
 const formatAnalysisDataForPrompt = (analysisResults: TrustCheckResult): string => {
@@ -36,26 +36,26 @@ const formatAnalysisDataForPrompt = (analysisResults: TrustCheckResult): string 
     
     // If it's an EML analysis, the 'whoisData.domain' actually holds the sender's email.
     // The 'query' holds the filename. We want the chat to be aware of the sender's email.
-    const senderInfo = isEmlAnalysis ? `- Sender's Email: ${analysis.whoisData.domain}` : '';
+    const senderInfo = isEmlAnalysis ? `- Email nadawcy: ${analysis.whoisData.domain}` : '';
     
     // Include the extracted email body in the prompt for context.
     const contentInfo = analysis.contentAnalysis 
-        ? `- E-mail Content Analysis: Suspicious: ${analysis.contentAnalysis.isSuspicious}. Reason: ${analysis.contentAnalysis.suspicionReason}\n- Extracted Email Body: ${analysis.contentAnalysis.extractedBody}` 
-        : '- E-mail Content Analysis: N/A';
+        ? `- Analiza treści e-maila: Podejrzana: ${analysis.contentAnalysis.isSuspicious}. Powód: ${analysis.contentAnalysis.suspicionReason}\n- Wyodrębniona treść e-maila: ${analysis.contentAnalysis.extractedBody}` 
+        : '- Analiza treści e-maila: Nie dotyczy';
 
 
     return `
-- Query: ${analysis.query}
+- Zapytanie: ${analysis.query}
 ${senderInfo}
-- Overall Summary: ${summary.summary}
-- Domain Reputation: Score: ${analysis.domainReputation.score}/100 from ${analysis.domainReputation.provider}.
-- WHOIS Data: Domain created on ${analysis.whoisData.creationDate} and expires on ${analysis.whoisData.expiryDate}. Registrar: ${analysis.whoisData.registrar}. Owner: ${analysis.whoisData.owner || 'N/A'}.
-- DNS Records: MX: ${analysis.dnsRecords.mx}, SPF: ${analysis.dnsRecords.spf}, DKIM: ${analysis.dnsRecords.dkim}, DMARC: ${analysis.dnsRecords.dmarc}.
-- Blacklist Status: Is Listed: ${analysis.blacklistStatus.isListed}. Sources: ${analysis.blacklistStatus.sources.join(', ') || 'None'}.
-- Threat Intelligence: Is Known Threat: ${analysis.threatIntelligence.isKnownThreat}. Threat Types: ${analysis.threatIntelligence.threatTypes.join(", ") || "None"}.
-- Historical Data: Ownership Changes: ${analysis.historicalData.changes}. Last Change: ${analysis.historicalData.lastChangeDate}.
-- Typosquatting Check: Is Potential Typosquatting: ${analysis.typosquattingCheck.isPotentialTyposquatting}. Suspected Original: ${analysis.typosquattingCheck.suspectedOriginalDomain}. Reason: ${analysis.typosquattingCheck.reason}
-- Email Verification: ${analysis.isEmail && analysis.emailVerification ? `Deliverable: ${analysis.emailVerification.isDeliverable}, Disposable: ${analysis.emailVerification.isDisposable}, Catch-All: ${analysis.emailVerification.isCatchAll}.` : 'N/A'}
+- Ogólne podsumowanie: ${summary.summary}
+- Reputacja domeny: Ocena: ${analysis.domainReputation.score}/100 od ${analysis.domainReputation.provider}.
+- Dane WHOIS: Domena utworzona ${analysis.whoisData.creationDate} i wygasa ${analysis.whoisData.expiryDate}. Rejestrator: ${analysis.whoisData.registrar}. Właściciel: ${analysis.whoisData.owner || 'Brak danych'}.
+- Rekordy DNS: MX: ${analysis.dnsRecords.mx}, SPF: ${analysis.dnsRecords.spf}, DKIM: ${analysis.dnsRecords.dkim}, DMARC: ${analysis.dnsRecords.dmarc}.
+- Status na czarnej liście: Na liście: ${analysis.blacklistStatus.isListed}. Źródła: ${analysis.blacklistStatus.sources.join(', ') || 'Brak'}.
+- Analiza zagrożeń: Znane zagrożenie: ${analysis.threatIntelligence.isKnownThreat}. Typy zagrożeń: ${analysis.threatIntelligence.threatTypes.join(", ") || "Brak"}.
+- Dane historyczne: Zmiany właściciela: ${analysis.historicalData.changes}. Ostatnia zmiana: ${analysis.historicalData.lastChangeDate}.
+- Sprawdzenie pod kątem typosquattingu: Potencjalny typosquatting: ${analysis.typosquattingCheck.isPotentialTyposquatting}. Podejrzewana oryginalna domena: ${analysis.typosquattingCheck.suspectedOriginalDomain}. Powód: ${analysis.typosquattingCheck.reason}
+- Weryfikacja e-maila: ${analysis.isEmail && analysis.emailVerification ? `Dostarczalny: ${analysis.emailVerification.isDeliverable}, Jednorazowy: ${analysis.emailVerification.isDisposable}, Catch-All: ${analysis.emailVerification.isCatchAll}.` : 'Nie dotyczy'}
 ${contentInfo}
   `.trim();
 }
@@ -70,7 +70,7 @@ export function TrustCheckChat({ result }: { result: TrustCheckResult }) {
     const analysisData = formatAnalysisDataForPrompt(result);
     const systemPrompt = `You are an AI assistant for the TrustCheck application. Your task is to answer user questions based on the security analysis report for an email or domain. Use ONLY the information provided in the report. If the information is not in the report, state that you do not have that information.
 When an .eml file is analyzed, the 'Query' field is the filename, and the 'Sender's Email' field is the extracted sender address.
-Respond in the language the user is asking in. If the language is not clear or it's not English or Polish, default to English.
+Respond in the language the user is asking in. If the language is not clear or it's not English or Polish, default to Polish.
 Oto pełny raport analizy (Here is the full analysis report):
 ---
 ${analysisData}
@@ -117,7 +117,7 @@ ${analysisData}
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
        const assistantErrorMessage: DisplayMessage = {
         role: 'assistant',
-        content: `Sorry, an error occurred: ${errorMessage}`,
+        content: `Przepraszamy, wystąpił błąd: ${errorMessage}`,
         isError: true,
       };
       setDisplayMessages((prev) => [...prev, assistantErrorMessage]);
@@ -131,7 +131,7 @@ ${analysisData}
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Bot />
-          Ask a question about the results
+          Zadaj pytanie dotyczące wyników
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -140,7 +140,7 @@ ${analysisData}
             <div className="space-y-4">
               {displayMessages.length === 0 ? (
                 <div className="text-center text-muted-foreground">
-                  Ask me anything about the report, for example: "Why is the domain reputation score low?"
+                  Zapytaj mnie o cokolwiek z raportu, na przykład: "Dlaczego reputacja domeny jest niska?"
                 </div>
               ) : (
                 displayMessages.map((message, index) => (
@@ -185,7 +185,7 @@ ${analysisData}
                     <FormItem className="w-full">
                       <FormControl>
                         <Input
-                          placeholder="Type your message..."
+                          placeholder="Napisz swoją wiadomość..."
                           {...field}
                           disabled={isLoading}
                           autoComplete="off"
@@ -206,3 +206,5 @@ ${analysisData}
     </Card>
   );
 }
+
+    

@@ -50,21 +50,21 @@ const getRecommendationInfo = (recommendation: "Fake" | "Real") => {
   switch (recommendation) {
     case "Real":
       return {
-        title: "Likely Real",
+        title: "Prawdopodobnie Prawdziwy",
         Icon: ShieldCheck,
         color: "text-green-500",
         progressColor: "bg-green-500",
       };
     case "Fake":
       return {
-        title: "Likely Fake",
+        title: "Prawdopodobnie Fałszywy",
         Icon: ShieldAlert,
         color: "text-destructive",
         progressColor: "bg-destructive",
       };
     default:
       return {
-        title: "Uncertain",
+        title: "Niepewny",
         Icon: ShieldQuestion,
         color: "text-yellow-500",
         progressColor: "bg-yellow-500",
@@ -101,10 +101,10 @@ const DetailItem = ({ label, value, tooltip }: { label: string; value: React.Rea
 const BooleanBadge = ({ value }: { value: boolean }) => (
     value ? 
     <Badge variant="default" className="bg-green-500/20 text-green-700 dark:bg-green-500/10 dark:text-green-400 border-green-500/30">
-        <CheckCircle2 className="mr-1 h-3 w-3" /> Yes
+        <CheckCircle2 className="mr-1 h-3 w-3" /> Tak
     </Badge> : 
     <Badge variant="destructive" className="bg-red-500/20 text-red-700 dark:bg-red-500/10 dark:text-red-400 border-red-500/30">
-        <AlertCircle className="mr-1 h-3 w-3" /> No
+        <AlertCircle className="mr-1 h-3 w-3" /> Nie
     </Badge>
 );
 
@@ -116,8 +116,8 @@ export function TrustCheckResults({ result }: TrustCheckResultsProps) {
   const isEmlFile = analysis.query.endsWith('.eml');
 
   const resultDescription = isEmlFile 
-    ? `Based on our analysis of '${analysis.query}' from ${analysis.whoisData.domain}, this is our recommendation.`
-    : `Based on our analysis, this is our recommendation for '${analysis.query}'.`
+    ? `Na podstawie naszej analizy pliku '${analysis.query}' od ${analysis.whoisData.domain}, to jest nasza rekomendacja.`
+    : `Na podstawie naszej analizy, to jest nasza rekomendacja dla '${analysis.query}'.`
 
   return (
     <div className="space-y-6">
@@ -136,7 +136,7 @@ export function TrustCheckResults({ result }: TrustCheckResultsProps) {
         <CardContent>
           <div className="mb-4">
             <div className="flex justify-between items-center mb-1">
-              <span className="text-sm font-medium text-foreground">Confidence Score</span>
+              <span className="text-sm font-medium text-foreground">Wskaźnik zaufania</span>
               <span className={`text-sm font-bold ${color}`}>{confidence}%</span>
             </div>
             <Progress value={confidence} indicatorClassName={progressColor} />
@@ -150,7 +150,7 @@ export function TrustCheckResults({ result }: TrustCheckResultsProps) {
         {analysis.contentAnalysis && (
             <AccordionItem value="item-content-analysis">
                 <AccordionTrigger className="text-lg font-semibold">
-                    <SectionIcon icon={FileText} /> E-mail Content Analysis
+                    <SectionIcon icon={FileText} /> Analiza treści e-mail
                 </AccordionTrigger>
                 <AccordionContent>
                     <ContentAnalysisSection data={analysis.contentAnalysis} />
@@ -160,7 +160,7 @@ export function TrustCheckResults({ result }: TrustCheckResultsProps) {
 
         <AccordionItem value="item-1">
           <AccordionTrigger className="text-lg font-semibold">
-            <SectionIcon icon={Gauge} /> Domain Reputation
+            <SectionIcon icon={Gauge} /> Reputacja domeny
           </AccordionTrigger>
           <AccordionContent>
             <DomainReputationSection data={analysis.domainReputation} />
@@ -169,7 +169,7 @@ export function TrustCheckResults({ result }: TrustCheckResultsProps) {
 
         <AccordionItem value="item-typosquatting">
           <AccordionTrigger className="text-lg font-semibold">
-            <SectionIcon icon={ScanSearch} /> Typosquatting Check
+            <SectionIcon icon={ScanSearch} /> Weryfikacja pod kątem typosquattingu
           </AccordionTrigger>
           <AccordionContent>
             <TyposquattingSection data={analysis.typosquattingCheck} />
@@ -178,7 +178,7 @@ export function TrustCheckResults({ result }: TrustCheckResultsProps) {
 
         <AccordionItem value="item-2">
           <AccordionTrigger className="text-lg font-semibold">
-            <SectionIcon icon={User} /> WHOIS Information
+            <SectionIcon icon={User} /> Informacje WHOIS
           </AccordionTrigger>
           <AccordionContent>
             <WhoisSection data={analysis.whoisData} />
@@ -187,7 +187,7 @@ export function TrustCheckResults({ result }: TrustCheckResultsProps) {
 
         <AccordionItem value="item-3">
           <AccordionTrigger className="text-lg font-semibold">
-            <SectionIcon icon={Server} /> DNS Records
+            <SectionIcon icon={Server} /> Rekordy DNS
           </AccordionTrigger>
           <AccordionContent>
              <DnsSection data={analysis.dnsRecords} />
@@ -197,7 +197,7 @@ export function TrustCheckResults({ result }: TrustCheckResultsProps) {
         {analysis.isEmail && analysis.emailVerification && (
           <AccordionItem value="item-4">
             <AccordionTrigger className="text-lg font-semibold">
-              <SectionIcon icon={MailCheck} /> Email Verification
+              <SectionIcon icon={MailCheck} /> Weryfikacja email
             </AccordionTrigger>
             <AccordionContent>
               <EmailVerificationSection data={analysis.emailVerification} />
@@ -207,7 +207,7 @@ export function TrustCheckResults({ result }: TrustCheckResultsProps) {
 
         <AccordionItem value="item-5">
           <AccordionTrigger className="text-lg font-semibold">
-            <SectionIcon icon={List} /> Blacklist Status
+            <SectionIcon icon={List} /> Status na czarnej liście
           </AccordionTrigger>
           <AccordionContent>
              <BlacklistSection data={analysis.blacklistStatus} />
@@ -216,7 +216,7 @@ export function TrustCheckResults({ result }: TrustCheckResultsProps) {
         
         <AccordionItem value="item-6">
           <AccordionTrigger className="text-lg font-semibold">
-            <SectionIcon icon={Dna} /> Threat Intelligence
+            <SectionIcon icon={Dna} /> Analiza zagrożeń
           </AccordionTrigger>
           <AccordionContent>
              <ThreatIntelligenceSection data={analysis.threatIntelligence} />
@@ -225,7 +225,7 @@ export function TrustCheckResults({ result }: TrustCheckResultsProps) {
 
         <AccordionItem value="item-7">
           <AccordionTrigger className="text-lg font-semibold">
-            <SectionIcon icon={FileClock} /> Historical Data
+            <SectionIcon icon={FileClock} /> Dane archiwalne
           </AccordionTrigger>
           <AccordionContent>
              <HistoricalDataSection data={analysis.historicalData} />
@@ -239,10 +239,10 @@ export function TrustCheckResults({ result }: TrustCheckResultsProps) {
 const ContentAnalysisSection = ({ data }: { data: NonNullable<AnalysisResults['contentAnalysis']> }) => (
     <Card className="bg-background/50">
         <CardContent className="p-4 space-y-2">
-            <DetailItem label="Content is Suspicious" value={<BooleanBadge value={data.isSuspicious} />} />
-            <DetailItem label="Reason" value={data.suspicionReason} />
+            <DetailItem label="Treść podejrzana" value={<BooleanBadge value={data.isSuspicious} />} />
+            <DetailItem label="Powód" value={data.suspicionReason} />
              <div className="pt-2">
-                <span className="text-sm text-muted-foreground">Extracted Body</span>
+                <span className="text-sm text-muted-foreground">Wyodrębniona treść</span>
                 <pre className="mt-1 text-xs whitespace-pre-wrap font-mono bg-muted p-2 rounded-md max-h-96 overflow-y-auto">
                     {data.extractedBody}
                 </pre>
@@ -254,8 +254,8 @@ const ContentAnalysisSection = ({ data }: { data: NonNullable<AnalysisResults['c
 const DomainReputationSection = ({ data }: { data: DomainReputation }) => (
     <Card className="bg-background/50">
         <CardContent className="p-4">
-            <DetailItem label="Provider" value={data.provider} />
-            <DetailItem label="Score" value={`${data.score} / 100`} />
+            <DetailItem label="Dostawca" value={data.provider} />
+            <DetailItem label="Ocena" value={`${data.score} / 100`} />
         </CardContent>
     </Card>
 );
@@ -263,9 +263,9 @@ const DomainReputationSection = ({ data }: { data: DomainReputation }) => (
 const TyposquattingSection = ({ data }: { data: TyposquattingCheck }) => (
     <Card className="bg-background/50">
         <CardContent className="p-4">
-            <DetailItem label="Potential Typosquatting" value={<BooleanBadge value={data.isPotentialTyposquatting} />} tooltip="Checks if the domain name is intentionally similar to a popular domain to deceive users." />
-            <DetailItem label="Suspected Original" value={data.suspectedOriginalDomain} />
-            <DetailItem label="Reason" value={data.reason} />
+            <DetailItem label="Podejrzenie typosquattingu" value={<BooleanBadge value={data.isPotentialTyposquatting} />} tooltip="Sprawdza, czy nazwa domeny jest celowo podobna do popularnej domeny w celu oszukania użytkowników." />
+            <DetailItem label="Podejrzana domena oryginalna" value={data.suspectedOriginalDomain} />
+            <DetailItem label="Powód" value={data.reason} />
         </CardContent>
     </Card>
 );
@@ -273,11 +273,11 @@ const TyposquattingSection = ({ data }: { data: TyposquattingCheck }) => (
 const WhoisSection = ({ data }: { data: WhoisData }) => (
     <Card className="bg-background/50">
         <CardContent className="p-4">
-            <DetailItem label="Domain" value={data.domain} />
-            <DetailItem label="Registrar" value={data.registrar} />
-            <DetailItem label="Creation Date" value={data.creationDate} />
-            <DetailItem label="Expiry Date" value={data.expiryDate} />
-            <DetailItem label="Owner" value={data.owner} />
+            <DetailItem label="Domena" value={data.domain} />
+            <DetailItem label="Rejestrator" value={data.registrar} />
+            <DetailItem label="Data utworzenia" value={data.creationDate} />
+            <DetailItem label="Data wygaśnięcia" value={data.expiryDate} />
+            <DetailItem label="Właściciel" value={data.owner} />
         </CardContent>
     </Card>
 );
@@ -285,10 +285,10 @@ const WhoisSection = ({ data }: { data: WhoisData }) => (
 const DnsSection = ({ data }: { data: DnsRecords }) => (
     <Card className="bg-background/50">
         <CardContent className="p-4">
-            <DetailItem label="MX Record" value={<BooleanBadge value={data.mx} />} tooltip="Mail Exchange records direct email to a mail server." />
-            <DetailItem label="SPF Record" value={<BooleanBadge value={data.spf} />} tooltip="Sender Policy Framework prevents sender address forgery." />
-            <DetailItem label="DKIM Record" value={<BooleanBadge value={data.dkim} />} tooltip="DomainKeys Identified Mail ensures message integrity." />
-            <DetailItem label="DMARC Record" value={<BooleanBadge value={data.dmarc} />} tooltip="Domain-based Message Authentication, Reporting, and Conformance aligns SPF and DKIM." />
+            <DetailItem label="Rekord MX" value={<BooleanBadge value={data.mx} />} tooltip="Rekordy Mail Exchange (MX) kierują pocztę e-mail na serwer pocztowy." />
+            <DetailItem label="Rekord SPF" value={<BooleanBadge value={data.spf} />} tooltip="Sender Policy Framework (SPF) zapobiega fałszowaniu adresów nadawców." />
+            <DetailItem label="Rekord DKIM" value={<BooleanBadge value={data.dkim} />} tooltip="DomainKeys Identified Mail (DKIM) zapewnia integralność wiadomości." />
+            <DetailItem label="Rekord DMARC" value={<BooleanBadge value={data.dmarc} />} tooltip="Domain-based Message Authentication, Reporting, and Conformance (DMARC) dostosowuje SPF i DKIM." />
         </CardContent>
     </Card>
 );
@@ -296,9 +296,9 @@ const DnsSection = ({ data }: { data: DnsRecords }) => (
 const EmailVerificationSection = ({ data }: { data: EmailVerification }) => (
     <Card className="bg-background/50">
         <CardContent className="p-4">
-            <DetailItem label="Deliverable" value={<BooleanBadge value={data.isDeliverable} />} tooltip="Whether the email address can receive mail." />
-            <DetailItem label="Disposable" value={<BooleanBadge value={data.isDisposable} />} tooltip="Whether the email is from a temporary email provider." />
-            <DetailItem label="Catch-All" value={<BooleanBadge value={data.isCatchAll} />} tooltip="Whether the server accepts all emails to the domain." />
+            <DetailItem label="Dostarczalny" value={<BooleanBadge value={data.isDeliverable} />} tooltip="Czy adres e-mail może odbierać pocztę." />
+            <DetailItem label="Jednorazowy" value={<BooleanBadge value={data.isDisposable} />} tooltip="Czy e-mail pochodzi od dostawcy tymczasowych adresów e-mail." />
+            <DetailItem label="Catch-All" value={<BooleanBadge value={data.isCatchAll} />} tooltip="Czy serwer akceptuje wszystkie e-maile do domeny." />
         </CardContent>
     </Card>
 );
@@ -306,8 +306,8 @@ const EmailVerificationSection = ({ data }: { data: EmailVerification }) => (
 const BlacklistSection = ({ data }: { data: BlacklistStatus }) => (
     <Card className="bg-background/50">
         <CardContent className="p-4">
-            <DetailItem label="Listed on Blacklists" value={<BooleanBadge value={data.isListed} />} />
-            <DetailItem label="Blacklist Sources" value={data.sources.length > 0 ? data.sources.join(', ') : 'None'} />
+            <DetailItem label="Umieszczony na czarnej liście" value={<BooleanBadge value={data.isListed} />} />
+            <DetailItem label="Źródła czarnej listy" value={data.sources.length > 0 ? data.sources.join(', ') : 'Brak'} />
         </CardContent>
     </Card>
 );
@@ -315,8 +315,8 @@ const BlacklistSection = ({ data }: { data: BlacklistStatus }) => (
 const ThreatIntelligenceSection = ({ data }: { data: ThreatIntelligenceReport }) => (
     <Card className="bg-background/50">
         <CardContent className="p-4">
-            <DetailItem label="Known Threat" value={<BooleanBadge value={data.isKnownThreat} />} />
-            <DetailItem label="Threat Types" value={data.threatTypes.length > 0 ? data.threatTypes.join(', ') : 'None'} />
+            <DetailItem label="Znane zagrożenie" value={<BooleanBadge value={data.isKnownThreat} />} />
+            <DetailItem label="Typy zagrożeń" value={data.threatTypes.length > 0 ? data.threatTypes.join(', ') : 'Brak'} />
         </CardContent>
     </Card>
 );
@@ -324,8 +324,10 @@ const ThreatIntelligenceSection = ({ data }: { data: ThreatIntelligenceReport })
 const HistoricalDataSection = ({ data }: { data: HistoricalData }) => (
     <Card className="bg-background/50">
         <CardContent className="p-4">
-            <DetailItem label="Ownership Changes" value={data.changes} />
-            <DetailItem label="Last Change Date" value={data.lastChangeDate} />
+            <DetailItem label="Zmiany właściciela" value={data.changes} />
+            <DetailItem label="Data ostatniej zmiany" value={data.lastChangeDate} />
         </CardContent>
     </Card>
 );
+
+    
