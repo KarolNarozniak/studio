@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { TrustCheckResult, WhoisData, DnsRecords, BlacklistStatus, ThreatIntelligenceReport, HistoricalData, EmailVerification, DomainReputation, TyposquattingCheck, AnalysisResults } from "@/lib/types";
@@ -112,6 +113,8 @@ export function TrustCheckResults({ result }: TrustCheckResultsProps) {
   const { recommendation, confidenceScore, summary: aiSummary } = summary;
   const { title, Icon, color, progressColor } = getRecommendationInfo(recommendation);
   const confidence = Math.round(confidenceScore * 100);
+  const isEmlFile = analysis.query.endsWith('.eml');
+  const displayQuery = isEmlFile ? `${analysis.query} from ${analysis.whoisData.domain}` : analysis.query;
 
   return (
     <div className="space-y-6">
@@ -122,7 +125,7 @@ export function TrustCheckResults({ result }: TrustCheckResultsProps) {
             <div>
               <CardTitle className={`text-3xl ${color}`}>{title}</CardTitle>
               <CardDescription className="text-base">
-                Based on our analysis, this is our recommendation for '{analysis.query}'.
+                Based on our analysis, this is our recommendation for '{displayQuery}'.
               </CardDescription>
             </div>
           </div>

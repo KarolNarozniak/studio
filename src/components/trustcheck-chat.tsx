@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useRef, useEffect } from 'react';
@@ -36,6 +37,12 @@ const formatAnalysisDataForPrompt = (analysisResults: TrustCheckResult): string 
     // If it's an EML analysis, the 'whoisData.domain' actually holds the sender's email.
     // The 'query' holds the filename. We want the chat to be aware of the sender's email.
     const senderInfo = isEmlAnalysis ? `- Sender's Email: ${analysis.whoisData.domain}` : '';
+    
+    // Include the extracted email body in the prompt for context.
+    const contentInfo = analysis.contentAnalysis 
+        ? `- E-mail Content Analysis: Suspicious: ${analysis.contentAnalysis.isSuspicious}. Reason: ${analysis.contentAnalysis.suspicionReason}\n- Extracted Email Body: ${analysis.contentAnalysis.extractedBody}` 
+        : '- E-mail Content Analysis: N/A';
+
 
     return `
 - Query: ${analysis.query}
@@ -49,7 +56,7 @@ ${senderInfo}
 - Historical Data: Ownership Changes: ${analysis.historicalData.changes}. Last Change: ${analysis.historicalData.lastChangeDate}.
 - Typosquatting Check: Is Potential Typosquatting: ${analysis.typosquattingCheck.isPotentialTyposquatting}. Suspected Original: ${analysis.typosquattingCheck.suspectedOriginalDomain}. Reason: ${analysis.typosquattingCheck.reason}
 - Email Verification: ${analysis.isEmail && analysis.emailVerification ? `Deliverable: ${analysis.emailVerification.isDeliverable}, Disposable: ${analysis.emailVerification.isDisposable}, Catch-All: ${analysis.emailVerification.isCatchAll}.` : 'N/A'}
-- E-mail Content Analysis: ${analysis.contentAnalysis ? `Suspicious: ${analysis.contentAnalysis.isSuspicious}. Reason: ${analysis.contentAnalysis.suspicionReason}` : 'N/A'}
+${contentInfo}
   `.trim();
 }
 
