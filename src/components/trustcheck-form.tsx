@@ -66,10 +66,11 @@ export function TrustCheckForm({ onSubmit, isLoading }: TrustCheckFormProps) {
   });
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
+    const files = event.target.files;
+    if (files && files.length > 0) {
+      const file = files[0];
       setSelectedFile(file);
-      form.setValue("file", event.target.files);
+      form.setValue("file", files);
       form.setValue("query", ""); // Clear text input when file is selected
       form.clearErrors("query");
     }
@@ -77,7 +78,7 @@ export function TrustCheckForm({ onSubmit, isLoading }: TrustCheckFormProps) {
 
   const handleRemoveFile = () => {
     setSelectedFile(null);
-    form.reset({ ...form.getValues(), file: undefined });
+    form.setValue("file", undefined);
     if (fileInputRef.current) {
         fileInputRef.current.value = "";
     }
