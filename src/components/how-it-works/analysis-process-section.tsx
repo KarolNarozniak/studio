@@ -37,7 +37,9 @@ export function AnalysisProcessSection() {
 
         {/* Connecting Arrow */}
         <div className="w-full flex justify-end md:pr-[12.5%] lg:pr-[16.66%]">
-          <Arrow vertical />
+           <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary hidden md:block transform rotate-90">
+             <path d="M5 12h14M12 5l7 7-7 7"/>
+           </svg>
         </div>
 
         {/* Second Row */}
@@ -64,23 +66,15 @@ const ProcessStep = ({ Icon, title, description }: { Icon: React.ElementType, ti
     </div>
 );
 
-const Arrow = ({ horizontal = false, vertical = false, reverse = false }) => {
-    let classes = "text-primary";
-    if (horizontal) classes += " hidden md:block";
-    if (vertical) classes += " hidden md:block transform -rotate-90 md:rotate-0";
+const Arrow = ({ horizontal = false, reverse = false }) => {
+    let classes = "text-primary hidden md:block";
     if (reverse && horizontal) classes += " transform rotate-180";
     
     return (
         <div className={classes}>
-            {vertical ? (
-                 <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M5 12h14M12 5l7 7-7 7"/>
-                </svg>
-            ) : (
-                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M5 12h14M12 5l7 7-7 7"/>
-                </svg>
-            )}
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
         </div>
     );
 };
