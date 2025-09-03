@@ -19,6 +19,7 @@ const SummarizeTrustCheckResultsInputSchema = z.object({
   historicalData: z.string().describe('Historical data of the domain.'),
   typosquattingCheck: z.string().describe('Analysis of whether the domain is a potential typosquatting attempt.'),
   emailVerification: z.string().optional().describe('Email verification details, if applicable.'),
+  contentAnalysis: z.string().optional().describe('AI analysis of the email body content for phishing or social engineering tactics.'),
 });
 export type SummarizeTrustCheckResultsInput = z.infer<typeof SummarizeTrustCheckResultsInputSchema>;
 
@@ -42,7 +43,7 @@ const prompt = ai.definePrompt({
   prompt: `You are an AI chatbot designed to analyze domain/email check results and provide a risk assessment.
 
   Based on the following information, provide a summary of the findings and a recommendation of either "Fake" or "Real". Also provide a confidence score between 0 and 1.
-  The typosquatting check is very important. If it indicates a potential typosquatting attempt, the recommendation should almost always be "Fake" with a high confidence score, regardless of other factors.
+  The typosquatting check and the email content analysis are very important. If either indicates a potential threat, the recommendation should almost always be "Fake" with a high confidence score, regardless of other factors.
 
   Domain Reputation: {{{domainReputation}}}
   WHOIS Data: {{{whoisData}}}
@@ -52,6 +53,7 @@ const prompt = ai.definePrompt({
   Historical Data: {{{historicalData}}}
   Typosquatting Check: {{{typosquattingCheck}}}
   Email Verification: {{{emailVerification}}}
+  Email Content Analysis: {{{contentAnalysis}}}
 
   Respond in a format that is easily understandable by a non-technical user.
   Be concise and to the point in the summary.

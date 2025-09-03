@@ -45,6 +45,11 @@ export interface AnalysisResults {
     isDisposable: boolean;
     isCatchAll: boolean;
   };
+  contentAnalysis?: {
+    isSuspicious: boolean;
+    suspicionReason: string;
+    extractedBody: string;
+  }
 }
 
 

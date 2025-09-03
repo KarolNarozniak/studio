@@ -80,9 +80,12 @@ export async function analyzeEmlFile(
             analysisResults.threatIntelligence.isKnownThreat = analysisResults.threatIntelligence.isKnownThreat || output.isSuspicious;
             if (output.isSuspicious && !analysisResults.threatIntelligence.threatTypes.includes('Social Engineering')) {
                 analysisResults.threatIntelligence.threatTypes.push('Social Engineering');
-                // You could also add the reason to a new field if the type was updated.
-                // For now, we just flag it.
-                console.log(`Content analysis reason: ${output.suspicionReason}`);
+            }
+            // Add the new contentAnalysis field
+            analysisResults.contentAnalysis = {
+              isSuspicious: output.isSuspicious,
+              suspicionReason: output.suspicionReason,
+              extractedBody: emailBody.substring(0, 500) + (emailBody.length > 500 ? '...' : '') // Truncate for display
             }
         }
     }

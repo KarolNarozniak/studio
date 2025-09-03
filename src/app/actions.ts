@@ -45,6 +45,7 @@ export async function performTrustCheck(
     historicalData: `Ownership Changes: ${analysis.historicalData.changes}. Last Change: ${analysis.historicalData.lastChangeDate}.`,
     typosquattingCheck: `Is Potential Typosquatting: ${analysis.typosquattingCheck.isPotentialTyposquatting}. Suspected Original: ${analysis.typosquattingCheck.suspectedOriginalDomain}. Reason: ${analysis.typosquattingCheck.reason}`,
     emailVerification: analysis.isEmail && analysis.emailVerification ? `Deliverable: ${analysis.emailVerification.isDeliverable}, Disposable: ${analysis.emailVerification.isDisposable}, Catch-All: ${analysis.emailVerification.isCatchAll}.` : 'N/A',
+    contentAnalysis: analysis.contentAnalysis ? `Suspicious: ${analysis.contentAnalysis.isSuspicious}. Reason: ${analysis.contentAnalysis.suspicionReason}` : 'N/A',
   });
 
   return { analysis, summary };
@@ -93,6 +94,7 @@ export async function runChatDiagnostics(
 - Historical Data: Ownership Changes: ${result.analysis.historicalData.changes}. Last Change: ${result.analysis.historicalData.lastChangeDate}.
 - Typosquatting Check: Is Potential Typosquatting: ${result.analysis.typosquattingCheck.isPotentialTyposquatting}. Suspected Original: ${result.analysis.typosquattingCheck.suspectedOriginalDomain}. Reason: ${result.analysis.typosquattingCheck.reason}
 - Email Verification: ${result.analysis.isEmail && result.analysis.emailVerification ? `Deliverable: ${result.analysis.emailVerification.isDeliverable}, Disposable: ${result.analysis.emailVerification.isDisposable}, Catch-All: ${result.analysis.emailVerification.isCatchAll}.` : 'N/A'}
+- E-mail Content Analysis: ${result.analysis.contentAnalysis ? `Suspicious: ${result.analysis.contentAnalysis.isSuspicious}. Reason: ${result.analysis.contentAnalysis.suspicionReason}` : 'N/A'}
   `.trim();
 
     const logs = await runChatDiagnosticsLogic(analysisData, userMessage);

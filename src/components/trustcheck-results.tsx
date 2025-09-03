@@ -1,6 +1,6 @@
 "use client";
 
-import type { TrustCheckResult, WhoisData, DnsRecords, BlacklistStatus, ThreatIntelligenceReport, HistoricalData, EmailVerification, DomainReputation, TyposquattingCheck } from "@/lib/types";
+import type { TrustCheckResult, WhoisData, DnsRecords, BlacklistStatus, ThreatIntelligenceReport, HistoricalData, EmailVerification, DomainReputation, TyposquattingCheck, AnalysisResults } from "@/lib/types";
 import {
   Card,
   CardContent,
@@ -27,6 +27,7 @@ import {
   CheckCircle2,
   Dna,
   FileClock,
+  FileText,
   Gauge,
   HelpCircle,
   List,
@@ -76,8 +77,8 @@ const SectionIcon = ({ icon }: { icon: React.ElementType }) => {
 };
 
 const DetailItem = ({ label, value, tooltip }: { label: string; value: React.ReactNode; tooltip?: string }) => (
-  <div className="flex justify-between items-center py-2 border-b border-border/50 last:border-b-0">
-    <div className="flex items-center">
+  <div className="flex justify-between items-start py-2 border-b border-border/50 last:border-b-0">
+    <div className="flex items-center flex-shrink-0 mr-4">
       <span className="text-sm text-muted-foreground">{label}</span>
       {tooltip && (
         <TooltipProvider>
@@ -92,7 +93,7 @@ const DetailItem = ({ label, value, tooltip }: { label: string; value: React.Rea
         </TooltipProvider>
       )}
     </div>
-    <span className="text-sm font-medium text-foreground text-right">{value}</span>
+    <div className="text-sm font-medium text-foreground text-right">{value}</div>
   </div>
 );
 
@@ -139,6 +140,18 @@ export function TrustCheckResults({ result }: TrustCheckResultsProps) {
       </Card>
 
       <Accordion type="single" collapsible className="w-full" defaultValue="item-1">
+        
+        {analysis.contentAnalysis && (
+            <AccordionItem value="item-content-analysis">
+                <AccordionTrigger className="text-lg font-semibold">
+                    <SectionIcon icon={FileText} /> E-mail Content Analysis
+                </AccordionTrigger>
+                <AccordionContent>
+                    <ContentAnalysisSection data={analysis.contentAnalysis} />
+                </AccordionContent>
+            </AccordionItem>
+        )}
+
         <AccordionItem value="item-1">
           <AccordionTrigger className="text-lg font-semibold">
             <SectionIcon icon={Gauge} /> Domain Reputation
@@ -217,6 +230,20 @@ export function TrustCheckResults({ result }: TrustCheckResultsProps) {
   );
 }
 
+const ContentAnalysisSection = ({ data }: { data: NonNullable<AnalysisResults['contentAnalysis']> }) => (
+    <Card className="bg-background/50">
+        <CardContent className="p-4 space-y-2">
+            <DetailItem label="Content is Suspicious" value={<BooleanBadge value={data.isSuspicious} />} />
+            <DetailItem label="Reason" value={data.suspicionReason} />
+             <div className="pt-2">
+                <span className="text-sm text-muted-foreground">Extracted Body (first 500 chars)</span>
+                <pre className="mt-1 text-xs whitespace-pre-wrap font-mono bg-muted p-2 rounded-md max-h-48 overflow-y-auto">
+                    {data.extractedBody}
+                </pre>
+            </div>
+        </CardContent>
+    </Card>
+);
 
 const DomainReputationSection = ({ data }: { data: DomainReputation }) => (
     <Card className="bg-background/50">

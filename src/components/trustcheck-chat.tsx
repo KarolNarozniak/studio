@@ -42,6 +42,7 @@ const formatAnalysisDataForPrompt = (analysisResults: TrustCheckResult): string 
 - Historical Data: Ownership Changes: ${analysis.historicalData.changes}. Last Change: ${analysis.historicalData.lastChangeDate}.
 - Typosquatting Check: Is Potential Typosquatting: ${analysis.typosquattingCheck.isPotentialTyposquatting}. Suspected Original: ${analysis.typosquattingCheck.suspectedOriginalDomain}. Reason: ${analysis.typosquattingCheck.reason}
 - Email Verification: ${analysis.isEmail && analysis.emailVerification ? `Deliverable: ${analysis.emailVerification.isDeliverable}, Disposable: ${analysis.emailVerification.isDisposable}, Catch-All: ${analysis.emailVerification.isCatchAll}.` : 'N/A'}
+- E-mail Content Analysis: ${analysis.contentAnalysis ? `Suspicious: ${analysis.contentAnalysis.isSuspicious}. Reason: ${analysis.contentAnalysis.suspicionReason}` : 'N/A'}
   `.trim();
 }
 
