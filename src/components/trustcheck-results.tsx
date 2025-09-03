@@ -41,6 +41,7 @@ import {
   User,
 } from "lucide-react";
 import React from "react";
+import { cn } from "@/lib/utils";
 
 type TrustCheckResultsProps = {
   result: TrustCheckResult;
@@ -77,7 +78,7 @@ const SectionIcon = ({ icon }: { icon: React.ElementType }) => {
   return <Icon className="h-5 w-5 text-primary mr-3" />;
 };
 
-const DetailItem = ({ label, value, tooltip }: { label: string; value: React.ReactNode; tooltip?: string }) => (
+const DetailItem = ({ label, value, tooltip, valueClassName }: { label: string; value: React.ReactNode; tooltip?: string, valueClassName?: string }) => (
   <div className="flex justify-between items-start py-2 border-b border-border/50 last:border-b-0">
     <div className="flex items-center flex-shrink-0 mr-4">
       <span className="text-sm text-muted-foreground">{label}</span>
@@ -94,7 +95,7 @@ const DetailItem = ({ label, value, tooltip }: { label: string; value: React.Rea
         </TooltipProvider>
       )}
     </div>
-    <div className="text-sm font-medium text-foreground text-right">{value}</div>
+    <div className={cn("text-sm font-medium text-foreground text-right", valueClassName)}>{value}</div>
   </div>
 );
 
@@ -240,7 +241,7 @@ const ContentAnalysisSection = ({ data }: { data: NonNullable<AnalysisResults['c
     <Card className="bg-background/50">
         <CardContent className="p-4 space-y-2">
             <DetailItem label="Treść podejrzana" value={<BooleanBadge value={data.isSuspicious} />} />
-            <DetailItem label="Powód" value={data.suspicionReason} />
+            <DetailItem label="Powód" value={data.suspicionReason} valueClassName="text-justify" />
              <div className="pt-2">
                 <span className="text-sm text-muted-foreground">Wyodrębniona treść</span>
                 <pre className="mt-1 text-xs whitespace-pre-wrap font-mono bg-muted p-2 rounded-md max-h-96 overflow-y-auto">
@@ -265,7 +266,7 @@ const TyposquattingSection = ({ data }: { data: TyposquattingCheck }) => (
         <CardContent className="p-4">
             <DetailItem label="Podejrzenie typosquattingu" value={<BooleanBadge value={data.isPotentialTyposquatting} />} tooltip="Sprawdza, czy nazwa domeny jest celowo podobna do popularnej domeny w celu oszukania użytkowników." />
             <DetailItem label="Podejrzana domena oryginalna" value={data.suspectedOriginalDomain} />
-            <DetailItem label="Powód" value={data.reason} />
+            <DetailItem label="Powód" value={data.isPotentialTyposquatting ? 'Znaleziono dowody na typosquatting.' : 'Nie znaleziono bezpośrednich dowodów na typosquatting.'} />
         </CardContent>
     </Card>
 );

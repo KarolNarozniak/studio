@@ -18,8 +18,8 @@ const ContentAnalysisInputSchema = z.object({
 
 // Define output schema for the AI content analysis
 const ContentAnalysisOutputSchema = z.object({
-  isSuspicious: z.boolean().describe("Whether the email content is suspicious."),
-  suspicionReason: z.string().describe("A brief explanation of why the content is considered suspicious, focusing on social engineering, urgency, or phishing tactics. If not suspicious, state that the content appears normal."),
+  isSuspicious: z.boolean().describe("Czy treść e-maila jest podejrzana."),
+  suspicionReason: z.string().describe("Krótkie wyjaśnienie, dlaczego treść jest uważana za podejrzaną, skupiając się na inżynierii społecznej, pilności lub taktykach phishingowych. Jeśli nie jest podejrzana, stwierdź, że treść wydaje się normalna."),
 });
 
 // Define the AI prompt for content analysis
@@ -27,15 +27,15 @@ const contentAnalysisPrompt = ai.definePrompt({
     name: 'emlContentAnalysisPrompt',
     input: { schema: ContentAnalysisInputSchema },
     output: { schema: ContentAnalysisOutputSchema },
-    prompt: `You are a cybersecurity analyst. Analyze the following email subject and body for signs of phishing, social engineering, or suspicious urgency.
+    prompt: `Jesteś analitykiem cyberbezpieczeństwa. Przeanalizuj poniższy temat i treść e-maila pod kątem oznak phishingu, inżynierii społecznej lub podejrzanej pilności. Odpowiedz w języku polskim.
 
-Subject: {{{subject}}}
+Temat: {{{subject}}}
 ---
-Body:
+Treść:
 {{{body}}}
 ---
 
-Based on the content, determine if it is suspicious and provide a brief reason. Look for common red flags like generic greetings, urgent calls to action, threats, requests for sensitive information, and unusual grammar or tone.`,
+Na podstawie treści ustal, czy jest ona podejrzana i podaj krótki powód. Szukaj typowych sygnałów ostrzegawczych, takich jak ogólne powitania, pilne wezwania do działania, groźby, prośby o poufne informacje oraz nietypowa gramatyka lub ton.`,
 });
 
 
