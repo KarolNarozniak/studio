@@ -39,6 +39,11 @@ const formatAnalysisDataForPrompt = (analysisResults: TrustCheckResult): string 
         ? `- Analiza treści e-maila: Podejrzana: ${analysis.contentAnalysis.isSuspicious}. Powód: ${analysis.contentAnalysis.suspicionReason}\n- Wyodrębniona treść e-maila: ${analysis.contentAnalysis.extractedBody}` 
         : '- Analiza treści e-maila: Nie dotyczy';
 
+    // Include raw data if available
+    const rawDataInfo = analysis.rawApiResponses 
+        ? `- Surowe dane API: ${JSON.stringify(analysis.rawApiResponses)}` 
+        : '- Surowe dane API: Brak';
+
 
     return `
 - Zapytanie: ${analysis.query}
@@ -53,6 +58,7 @@ ${senderInfo}
 - Sprawdzenie pod kątem typosquattingu: Potencjalny typosquatting: ${analysis.typosquattingCheck.isPotentialTyposquatting}. Podejrzewana oryginalna domena: ${analysis.typosquattingCheck.suspectedOriginalDomain}. Powód: ${analysis.typosquattingCheck.reason}
 - Weryfikacja e-maila: ${analysis.isEmail && analysis.emailVerification ? `Dostarczalny: ${analysis.emailVerification.isDeliverable}, Jednorazowy: ${analysis.emailVerification.isDisposable}, Catch-All: ${analysis.emailVerification.isCatchAll}.` : 'Nie dotyczy'}
 ${contentInfo}
+${rawDataInfo}
   `.trim();
 }
 
@@ -67,6 +73,7 @@ export function TrustCheckChat({ result }: { result: TrustCheckResult }) {
     const analysisData = formatAnalysisDataForPrompt(result);
     const systemPrompt = `Jesteś asystentem AI dla aplikacji TrustCheck. Twoim zadaniem jest odpowiadanie na pytania użytkowników na podstawie raportu z analizy bezpieczeństwa dla e-maila lub domeny. Używaj WYŁĄCZNIE informacji zawartych w raporcie. Jeśli informacja nie znajduje się w raporcie, stwierdź, że nie posiadasz tej informacji.
 Gdy analizowany jest plik .eml, pole 'Zapytanie' to nazwa pliku, a pole 'Email nadawcy' to wyodrębniony adres nadawcy.
+Możesz również zostać poproszony o informacje z 'Surowych danych API'. W takim przypadku przedstaw dane w czytelny sposób.
 Odpowiadaj w języku, w którym pyta użytkownik. Jeśli język nie jest jasny lub nie jest to angielski ani polski, domyślnie użyj języka polskiego.
 Oto pełny raport analizy (Here is the full analysis report):
 ---

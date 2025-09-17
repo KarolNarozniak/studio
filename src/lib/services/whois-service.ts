@@ -1,5 +1,5 @@
 
-import type { AnalysisResults } from "@/lib/types";
+import type { AnalysisResults, RawApiResponses } from "@/lib/types";
 import { detectTyposquatting } from "@/ai/flows/detect-typosquatting";
 
 const API_KEY = process.env.WHOISXML_API_KEY;
@@ -141,6 +141,16 @@ export const getLiveAnalysisResults = async (query: string): Promise<AnalysisRes
         isDisposable: emailInfo.disposableCheck === 'true',
         isCatchAll: emailInfo.catchAllCheck === 'true',
     } : undefined;
+    
+    // --- Assemble Raw API Responses ---
+    const rawApiResponses: RawApiResponses = {
+        whois: whoisData,
+        reputation: reputationData,
+        threat: threatData,
+        dns: dnsData,
+        email: emailData,
+        typosquatting: typosquattingData,
+    };
 
     // --- Assemble Final Result ---
     return {
@@ -163,6 +173,7 @@ export const getLiveAnalysisResults = async (query: string): Promise<AnalysisRes
             suspectedOriginalDomain: typosquattingData.suspectedOriginalDomain,
             reason: typosquattingData.reason,
         },
+        rawApiResponses,
         ...(isEmail && { emailVerification: processedEmailVerification }),
     };
 };

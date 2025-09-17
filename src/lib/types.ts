@@ -1,6 +1,7 @@
 // src/lib/types.ts
 
 import type {SummarizeTrustCheckResultsOutput} from '@/ai/flows/summarize-trust-check-results';
+import type {DetectTyposquattingOutput} from '@/ai/flows/detect-typosquatting';
 
 // A generic structure for a trust check analysis result
 export interface AnalysisResults {
@@ -49,7 +50,17 @@ export interface AnalysisResults {
     isSuspicious: boolean;
     suspicionReason: string;
     extractedBody: string;
-  }
+  };
+  rawApiResponses?: RawApiResponses;
+}
+
+export interface RawApiResponses {
+    whois: any;
+    reputation: any;
+    threat: any;
+    dns: any;
+    email: any;
+    typosquatting: DetectTyposquattingOutput;
 }
 
 
