@@ -35,20 +35,8 @@ export async function performTrustCheck(
     throw new Error('Invalid input for analysis.');
   }
 
-  // 2. Get AI summary
-  const summary = await summarizeTrustCheckResults({
-    domainReputation: `Ocena: ${analysis.domainReputation.score}/100 od ${analysis.domainReputation.provider}.`,
-    whoisData: `Domena utworzona ${analysis.whoisData.creationDate} i wygasa ${analysis.whoisData.expiryDate}. Rejestrator: ${analysis.whoisData.registrar}. Właściciel: ${analysis.whoisData.owner || 'Brak danych'}.`,
-    dnsRecords: `Adres IP: ${analysis.dnsRecords.ipAddress || 'Brak'}. MX: ${analysis.dnsRecords.mx}, SPF: ${analysis.dnsRecords.spf}, DKIM: ${analysis.dnsRecords.dkim}, DMARC: ${analysis.dnsRecords.dmarc}.`,
-    blacklistStatus: `Na liście: ${analysis.blacklistStatus.isListed}. Źródła: ${analysis.blacklistStatus.sources.join(', ') || 'Brak'}.`,
-    threatIntelligence: `Znane zagrożenie: ${analysis.threatIntelligence.isKnownThreat}. Typy zagrożeń: ${analysis.threatIntelligence.threatTypes.join(', ') || 'Brak'}.`,
-    historicalData: `Zmiany właściciela: ${analysis.historicalData.changes}. Ostatnia zmiana: ${analysis.historicalData.lastChangeDate}.`,
-    typosquattingCheck: `Potencjalny typosquatting: ${analysis.typosquattingCheck.isPotentialTyposquatting}. Podejrzewana oryginalna domena: ${analysis.typosquattingCheck.suspectedOriginalDomain}. Powód: ${analysis.typosquattingCheck.reason}`,
-    websiteCategorization: `Strona odpowiada: ${analysis.websiteCategorization.websiteResponded}. Kategorie: ${analysis.websiteCategorization.categories.map(c => c.name).join(', ') || 'Brak'}`,
-    ipNetblocks: analysis.ipNetblocks.error ? `Błąd: ${analysis.ipNetblocks.error}` : `ASN: ${analysis.ipNetblocks.asn}, Organizacja: ${analysis.ipNetblocks.organization}, Kraj: ${analysis.ipNetblocks.country}.`,
-    emailVerification: analysis.isEmail && analysis.emailVerification ? `Dostarczalny: ${analysis.emailVerification.isDeliverable}, Jednorazowy: ${analysis.emailVerification.isDisposable}, Catch-All: ${analysis.emailVerification.isCatchAll}.` : 'Nie dotyczy',
-    contentAnalysis: analysis.contentAnalysis ? `Podejrzana: ${analysis.contentAnalysis.isSuspicious}. Powód: ${analysis.contentAnalysis.suspicionReason}` : 'Nie dotyczy',
-  });
+  // 2. Get AI summary by passing the entire structured analysis object
+  const summary = await summarizeTrustCheckResults(analysis);
 
   return { analysis, summary };
 }

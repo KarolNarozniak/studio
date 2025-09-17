@@ -10,21 +10,14 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import type { AnalysisResults } from '@/lib/types';
 
-const SummarizeTrustCheckResultsInputSchema = z.object({
-  domainReputation: z.string().describe('Informacje o reputacji domeny.'),
-  whoisData: z.string().describe('Dane z wyszukiwania WHOIS.'),
-  dnsRecords: z.string().describe('Informacje o rekordach DNS.'),
-  blacklistStatus: z.string().describe('Status domeny/emaila na czarnej liście.'),
-  threatIntelligence: z.string().describe('Raport z analizy zagrożeń.'),
-  historicalData: z.string().describe('Dane historyczne domeny.'),
-  typosquattingCheck: z.string().describe('Analiza, czy domena jest potencjalną próbą typosquattingu.'),
-  websiteCategorization: z.string().describe('Kategorie, do których przypisana jest strona internetowa, np. "Wiadomości i polityka", "Biznes".'),
-  ipNetblocks: z.string().describe('Informacje o sieci IP, do której należy serwer, w tym ASN, organizacja i kraj.'),
-  emailVerification: z.string().optional().describe('Szczegóły weryfikacji e-maila, jeśli dotyczy.'),
-  contentAnalysis: z.string().optional().describe('Analiza AI treści e-maila pod kątem phishingu lub taktyk inżynierii społecznej.'),
-});
-export type SummarizeTrustCheckResultsInput = z.infer<typeof SummarizeTrustCheckResultsInputSchema>;
+
+// This creates a Zod schema from the TypeScript type.
+// It's a bit of a workaround to avoid re-defining the whole structure.
+const AnalysisResultsSchema = z.custom<AnalysisResults>();
+export type SummarizeTrustCheckResultsInput = AnalysisResults;
+
 
 const SummarizeTrustCheckResultsOutputSchema = z.object({
   summary: z.string().describe('Zwięzłe podsumowanie wyników analizy.'),
@@ -41,49 +34,57 @@ export async function summarizeTrustCheckResults(
 
 const prompt = ai.definePrompt({
   name: 'summarizeTrustCheckResultsPrompt',
-  input: {schema: SummarizeTrustCheckResultsInputSchema},
-  output: {schema: SummarizeTrustCheckResultsOutputSchema},
-  prompt: `Jesteś analitykiem cyberbezpieczeństwa. Twoim zadaniem jest analiza wyników weryfikacji domeny/emaila i przedstawienie zwięzłego podsumowania oraz rekomendacji dla pracownika firmy logistycznej, który weryfikuje potencjalnego przewoźnika.
+  input: { schema: AnalysisResultsSchema },
+  output: { schema: SummarizeTrustCheckResultsOutputSchema },
+  prompt: `
+Jesteś analitykiem cyberbezpieczeństwa wspierającym spedytora w firmie logistycznej. 
+Twoim zadaniem jest ocena, czy domena/email, z którego nadeszła propozycja współpracy, należy do wiarygodnego partnera biznesowego czy może być próbą oszustwa. 
 
-  Bazując na poniższych danych, wygeneruj zwięzłe, jedno- lub dwuzdaniowe podsumowanie oraz rekomendację "Fake" (Fałszywy) lub "Real" (Prawdziwy).
-  Odpowiedz w języku polskim.
+### Instrukcje:
+- Na podstawie dostarczonych danych wygeneruj krótkie (1–2 zdania) podsumowanie i jednoznaczną rekomendację: "Fake" (Fałszywy) lub "Real" (Prawdziwy). 
+- Odpowiedz w języku polskim.
+- Pamiętaj: patrzymy na sytuację **oczami spedytora**, który musi ocenić, czy nawiązać współpracę z przewoźnikiem lub partnerem.
+- Jeśli występują mocne sygnały ostrzegawcze, rekomendacja powinna brzmieć "Fake".
 
-  Pamiętaj, że celem jest ocena wiarygodności partnera biznesowego. Bądź ostrożny w swoich rekomendacjach. Jeśli istnieją jakiekolwiek poważne sygnały ostrzegawcze (np. podejrzenie typosquattingu, zła reputacja, obecność na czarnych listach, podejrzana treść maila, kategoria strony internetowej niezwiązana z biznesem/logistyką, podejrzana sieć IP), rekomendacja powinna brzmieć "Fake".
-  Kluczowe sygnały ostrzegawcze:
-  - Reputacja poniżej 50.
-  - Domena zarejestrowana niedawno (mniej niż rok temu).
-  - Jakiekolwiek podejrzenie typosquattingu.
-  - Obecność na czarnych listach.
-  - Kategorie strony internetowej takie jak 'Parked Domain', 'Gambling', 'Adult'.
-  - Sieć IP należąca do nieznanego dostawcy lub zlokalizowana w nietypowym kraju.
-  - Podejrzana treść e-maila.
+### Kluczowe kryteria i sygnały ostrzegawcze:
+- **Adres e-mail**: 
+  - Jeśli nadawca korzysta z darmowego dostawcy poczty (Gmail, Outlook, Proton, Yahoo, WP, Onet itp.), to jest to **silny sygnał ostrzegawczy** – poważna firma logistyczna lub przewoźnik powinien używać własnej domeny. W takim przypadku współpraca jest odradzana.
+- **Wiek domeny (WHOIS)**: domeny młodsze niż rok → wysokie ryzyko; stare i stabilne → pozytywny sygnał.
+- **Reputacja domeny**: wynik < 50 → mocny sygnał ostrzegawczy.
+- **Kraj rejestracji i hostingu**: nietypowe lokalizacje (RU, CN, NG itp.) zwiększają ryzyko.
+- **Polityki SPF, DKIM, DMARC**: 
+  - "fail" = sygnał ryzyka, 
+  - "pass" = pozytywny sygnał, 
+  - ale same w sobie nie przesądzają o wyniku.
+- **Treść e-maila**: sprawdzaj elementy socjotechniki (pilność, groźby, prośba o przelew, linki zewnętrzne, załączniki .exe/.zip).
+- **Typosquatting / lookalike**: 
+  - zagrożenie tylko przy oczywistych przypadkach (homograf, literówka w znanej marce, kopiowanie layoutu),
+  - nie klasyfikuj jako atak, jeśli to po prostu dwie różne firmy o podobnych nazwach.
+- **Kategorie stron**: "Parked Domain", "Gambling", "Adult", "Redirect/Tracking only" → sygnał ostrzegawczy.
+- **Kompromitacja**: stare CMS-y, malware, redirecty → zwiększone ryzyko.
 
-  Format podsumowania powinien być podobny do tego przykładu:
-  "Domena ma dobrą reputację, nie jest na czarnych listach i nie wygląda na próbę typosquattingu. Rekordy DNS są w większości poprawne. Rezultat: Możesz nawiązać współpracę."
-  LUB
-  "Domena jest potencjalną próbą typosquattingu i znajduje się na czarnej liście. Kategoria strony ('Gry') jest nieoczekiwana dla partnera biznesowego. Reputacja jest bardzo niska. Rezultat: Sprawdź głębiej dany mail/domenę, zalecana najwyższa ostrożność."
+### Przykłady formatu podsumowania:
+- Real:  
+  "Domena ma ponad 10 lat, wysoką reputację, poprawne SPF/DMARC i brak oznak typosquattingu. Rezultat: Możesz nawiązać współpracę."
+- Fake:  
+  "Adres korzysta z darmowego Gmaila, domena jest nowa i reputacja < 50. Treść wiadomości zawiera elementy socjotechniki. Rezultat: Fałszywy."
+- Fake:  
+  "Domena zarejestrowana 5 dni temu, brak SPF/DMARC, strona należy do kategorii 'Gambling'. Rezultat: Fałszywy."
+- Real:  
+  "Domena banku z wieloletnią historią, EV TLS i pełnymi politykami SPF/DMARC. Rezultat: Prawdziwy partner."
+- Fake:  
+  "Domena wykorzystuje homograf, podszywając się pod znaną markę i zawiera formularz logowania. Rezultat: Fałszywy."
 
-  Twoja odpowiedź musi być w formacie JSON.
-
-  Dane do analizy:
-  Reputacja domeny: {{{domainReputation}}}
-  Kategoryzacja strony: {{{websiteCategorization}}}
-  Dane WHOIS: {{{whoisData}}}
-  Analiza sieci IP: {{{ipNetblocks}}}
-  Rekordy DNS: {{{dnsRecords}}}
-  Status na czarnej liście: {{{blacklistStatus}}}
-  Analiza zagrożeń: {{{threatIntelligence}}}
-  Dane historyczne: {{{historicalData}}}
-  Sprawdzenie pod kątem typosquattingu: {{{typosquattingCheck}}}
-  Weryfikacja e-maila: {{{emailVerification}}}
-  Analiza treści e-maila: {{{contentAnalysis}}}
-`,
+### Dane do analizy:
+Oto pełne dane w formacie JSON:
+{{{json input}}}
+`
 });
 
 const summarizeTrustCheckResultsFlow = ai.defineFlow(
   {
     name: 'summarizeTrustCheckResultsFlow',
-    inputSchema: SummarizeTrustCheckResultsInputSchema,
+    inputSchema: AnalysisResultsSchema,
     outputSchema: SummarizeTrustCheckResultsOutputSchema,
   },
   async input => {
