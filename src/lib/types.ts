@@ -13,6 +13,15 @@ export interface WebsiteCategorization {
   websiteResponded: boolean;
 }
 
+// A structure for the IP Netblocks API response
+export interface IpNetblocks {
+  asn?: number;
+  organization?: string;
+  country?: string;
+  range?: string;
+  error?: string;
+}
+
 // A generic structure for a trust check analysis result
 export interface AnalysisResults {
   query: string;
@@ -33,6 +42,7 @@ export interface AnalysisResults {
     spf: boolean;
     dkim: boolean;
     dmarc: boolean;
+    ipAddress: string | null;
   };
   blacklistStatus: {
     isListed: boolean;
@@ -52,6 +62,7 @@ export interface AnalysisResults {
     reason: string;
   };
   websiteCategorization: WebsiteCategorization;
+  ipNetblocks: IpNetblocks;
   emailVerification?: {
     isDeliverable: boolean;
     isDisposable: boolean;
@@ -66,13 +77,14 @@ export interface AnalysisResults {
 }
 
 export interface RawApiResponses {
-    whois: any;
-    reputation: any;
-    threat: any;
-    dns: any;
-    email: any;
-    typosquatting: DetectTyposquattingOutput;
-    websiteCategorization: any;
+  whois: any;
+  reputation: any;
+  threat: any;
+  dns: any;
+  email: any;
+  typosquatting: DetectTyposquattingOutput;
+  websiteCategorization: any;
+  ipNetblocks: any;
 }
 
 

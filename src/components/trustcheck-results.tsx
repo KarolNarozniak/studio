@@ -1,7 +1,7 @@
 
 "use client";
 
-import type { TrustCheckResult, WhoisData, DnsRecords, BlacklistStatus, ThreatIntelligenceReport, HistoricalData, EmailVerification, DomainReputation, TyposquattingCheck, AnalysisResults, RawApiResponses, WebsiteCategorization } from "@/lib/types";
+import type { TrustCheckResult, WhoisData, DnsRecords, BlacklistStatus, ThreatIntelligenceReport, HistoricalData, EmailVerification, DomainReputation, TyposquattingCheck, AnalysisResults, RawApiResponses, WebsiteCategorization, IpNetblocks } from "@/lib/types";
 import {
   Card,
   CardContent,
@@ -224,6 +224,15 @@ export function TrustCheckResults({ result }: TrustCheckResultsProps) {
           </AccordionContent>
         </AccordionItem>
 
+        <AccordionItem value="item-ipnetblocks">
+          <AccordionTrigger className="text-lg font-semibold">
+            <SectionIcon icon={Server} /> Analiza Sieci IP
+          </AccordionTrigger>
+          <AccordionContent>
+            <IpNetblocksSection data={analysis.ipNetblocks} rawData={analysis.rawApiResponses?.ipNetblocks} />
+          </AccordionContent>
+        </AccordionItem>
+        
         <AccordionItem value="item-3">
           <AccordionTrigger className="text-lg font-semibold">
             <SectionIcon icon={Server} /> Rekordy DNS
@@ -342,6 +351,7 @@ const WhoisSection = ({ data, rawData }: { data: WhoisData, rawData: any }) => (
 const DnsSection = ({ data, rawData }: { data: DnsRecords, rawData: any }) => (
     <Card className="bg-background/50">
         <CardContent className="p-4">
+            <DetailItem label="Adres IP (A Record)" value={data.ipAddress || 'Brak'} tooltip="Główny adres IP serwera hostującego domenę." />
             <DetailItem label="Rekord MX" value={<BooleanBadge value={data.mx} />} tooltip="Rekordy Mail Exchange (MX) kierują pocztę e-mail na serwer pocztowy." />
             <DetailItem label="Rekord SPF" value={<BooleanBadge value={data.spf} />} tooltip="Sender Policy Framework (SPF) zapobiega fałszowaniu adresów nadawców." />
             <DetailItem label="Rekord DKIM" value={<BooleanBadge value={data.dkim} />} tooltip="DomainKeys Identified Mail (DKIM) zapewnia integralność wiadomości." />
@@ -350,6 +360,25 @@ const DnsSection = ({ data, rawData }: { data: DnsRecords, rawData: any }) => (
         </CardContent>
     </Card>
 );
+
+const IpNetblocksSection = ({ data, rawData }: { data: IpNetblocks, rawData: any }) => (
+    <Card className="bg-background/50">
+        <CardContent className="p-4">
+             {data.error ? (
+                <p className="text-sm text-destructive">{data.error}</p>
+            ) : (
+                <>
+                    <DetailItem label="ASN" value={data.asn || 'Brak'} tooltip="Numer Systemu Autonomicznego (ASN) identyfikujący sieć." />
+                    <DetailItem label="Organizacja" value={data.organization || 'Brak'} tooltip="Organizacja, która jest właścicielem tego bloku IP." />
+                    <DetailItem label="Kraj" value={data.country || 'Brak'} tooltip="Kraj pochodzenia bloku IP." />
+                    <DetailItem label="Zakres IP" value={data.range || 'Brak'} tooltip="Całkowity zakres adresów IP, do którego należy ten serwer." />
+                </>
+            )}
+            <RawDataViewer data={rawData} />
+        </CardContent>
+    </Card>
+);
+
 
 const EmailVerificationSection = ({ data, rawData }: { data: EmailVerification, rawData: any }) => (
     <Card className="bg-background/50">

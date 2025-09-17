@@ -20,6 +20,7 @@ const SummarizeTrustCheckResultsInputSchema = z.object({
   historicalData: z.string().describe('Dane historyczne domeny.'),
   typosquattingCheck: z.string().describe('Analiza, czy domena jest potencjalną próbą typosquattingu.'),
   websiteCategorization: z.string().describe('Kategorie, do których przypisana jest strona internetowa, np. "Wiadomości i polityka", "Biznes".'),
+  ipNetblocks: z.string().describe('Informacje o sieci IP, do której należy serwer, w tym ASN, organizacja i kraj.'),
   emailVerification: z.string().optional().describe('Szczegóły weryfikacji e-maila, jeśli dotyczy.'),
   contentAnalysis: z.string().optional().describe('Analiza AI treści e-maila pod kątem phishingu lub taktyk inżynierii społecznej.'),
 });
@@ -47,7 +48,15 @@ const prompt = ai.definePrompt({
   Bazując na poniższych danych, wygeneruj zwięzłe, jedno- lub dwuzdaniowe podsumowanie oraz rekomendację "Fake" (Fałszywy) lub "Real" (Prawdziwy).
   Odpowiedz w języku polskim.
 
-  Pamiętaj, że celem jest ocena wiarygodności partnera biznesowego. Bądź ostrożny w swoich rekomendacjach. Jeśli istnieją jakiekolwiek poważne sygnały ostrzegawcze (np. podejrzenie typosquattingu, zła reputacja, obecność na czarnych listach, podejrzana treść maila, kategoria strony internetowej niezwiązana z biznesem/logistyką), rekomendacja powinna brzmieć "Fake".
+  Pamiętaj, że celem jest ocena wiarygodności partnera biznesowego. Bądź ostrożny w swoich rekomendacjach. Jeśli istnieją jakiekolwiek poważne sygnały ostrzegawcze (np. podejrzenie typosquattingu, zła reputacja, obecność na czarnych listach, podejrzana treść maila, kategoria strony internetowej niezwiązana z biznesem/logistyką, podejrzana sieć IP), rekomendacja powinna brzmieć "Fake".
+  Kluczowe sygnały ostrzegawcze:
+  - Reputacja poniżej 50.
+  - Domena zarejestrowana niedawno (mniej niż rok temu).
+  - Jakiekolwiek podejrzenie typosquattingu.
+  - Obecność na czarnych listach.
+  - Kategorie strony internetowej takie jak 'Parked Domain', 'Gambling', 'Adult'.
+  - Sieć IP należąca do nieznanego dostawcy lub zlokalizowana w nietypowym kraju.
+  - Podejrzana treść e-maila.
 
   Format podsumowania powinien być podobny do tego przykładu:
   "Domena ma dobrą reputację, nie jest na czarnych listach i nie wygląda na próbę typosquattingu. Rekordy DNS są w większości poprawne. Rezultat: Możesz nawiązać współpracę."
@@ -60,6 +69,7 @@ const prompt = ai.definePrompt({
   Reputacja domeny: {{{domainReputation}}}
   Kategoryzacja strony: {{{websiteCategorization}}}
   Dane WHOIS: {{{whoisData}}}
+  Analiza sieci IP: {{{ipNetblocks}}}
   Rekordy DNS: {{{dnsRecords}}}
   Status na czarnej liście: {{{blacklistStatus}}}
   Analiza zagrożeń: {{{threatIntelligence}}}

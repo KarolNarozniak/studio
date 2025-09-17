@@ -1,5 +1,4 @@
-
-import type { AnalysisResults, RawApiResponses, WebsiteCategorization } from "@/lib/types";
+import type { AnalysisResults, RawApiResponses, WebsiteCategorization, IpNetblocks } from "@/lib/types";
 import { detectTyposquatting } from "@/ai/flows/detect-typosquatting";
 
 const API_KEY = process.env.WHOISXML_API_KEY;
@@ -10,6 +9,7 @@ const BASE_URLS = {
     threatIntelligence: "https://threat-intelligence.whoisxmlapi.com/api/v1",
     emailVerification: "https://emailverification.whoisxmlapi.com/api/v3",
     websiteCategorization: "https://website-categorization.whoisxmlapi.com/api/v3",
+    ipNetblocks: "https://ip-netblocks.whoisxmlapi.com/api/v2",
 };
 
 // --- API Response Types ---
@@ -27,6 +27,7 @@ interface WhoisAPIResponse {
 interface DnsRecord {
     dnsType: string;
     strings?: string[];
+    address?: string;
 }
 interface DnsAPIResponse {
     DNSData: {
@@ -51,6 +52,17 @@ interface EmailVerificationAPIResponse {
 interface WebsiteCategorizationAPIResponse {
     categories: { id: number; name: string; confidence: number }[];
     websiteResponded: boolean;
+}
+
+interface IpNetblocksAPIResponse {
+    result?: {
+        inetnums: {
+            as?: { asn?: number; name?: string };
+            country?: string;
+            inetnum?: string;
+        }[];
+    };
+    error?: string;
 }
 
 
@@ -124,12 +136,35 @@ export const getLiveAnalysisResults = async (query: string): Promise<AnalysisRes
     const records: DnsRecord[] = dnsData?.DNSData?.dnsRecords ?? [];
     const hasRecord = (type: string) => records.some(r => r.dnsType === type);
     const getTxtRecord = (val: string) => records.find(r => r.dnsType === 'TXT' && r.strings?.some(s => s.includes(val)));
+    const ipAddress = records.find(r => r.dnsType === 'A')?.address ?? null;
     const processedDns = {
         mx: hasRecord('MX'),
         spf: !!getTxtRecord('v=spf1'),
         dkim: !!getTxtRecord('_domainkey'),
         dmarc: !!getTxtRecord('_dmarc'),
+        ipAddress: ipAddress,
     };
+    
+    // --- Process IP Netblocks Data (dependent on DNS) ---
+    let ipNetblocksData: IpNetblocksAPIResponse | null = null;
+    let processedIpNetblocks: IpNetblocks = {};
+    if (ipAddress) {
+        ipNetblocksData = await fetchAPI(BASE_URLS.ipNetblocks, { ip: ipAddress });
+        if (ipNetblocksData?.result?.inetnums?.[0]) {
+            const firstBlock = ipNetblocksData.result.inetnums[0];
+            processedIpNetblocks = {
+                asn: firstBlock.as?.asn,
+                organization: firstBlock.as?.name,
+                country: firstBlock.country,
+                range: firstBlock.inetnum,
+            };
+        } else {
+             processedIpNetblocks.error = ipNetblocksData?.error ?? "Nie można było pobrać informacji o sieci IP.";
+        }
+    } else {
+        processedIpNetblocks.error = "Nie znaleziono adresu IP (rekordu A) dla domeny.";
+    }
+
 
     // --- Process Threat Intelligence & Blacklist ---
     const threats: { threatType: string }[] = threatData?.results ?? [];
@@ -166,6 +201,7 @@ export const getLiveAnalysisResults = async (query: string): Promise<AnalysisRes
         email: emailData,
         websiteCategorization: categorizationData,
         typosquatting: typosquattingData,
+        ipNetblocks: ipNetblocksData,
     };
 
     // --- Assemble Final Result ---
@@ -190,6 +226,7 @@ export const getLiveAnalysisResults = async (query: string): Promise<AnalysisRes
             reason: typosquattingData.reason,
         },
         websiteCategorization: processedCategorization,
+        ipNetblocks: processedIpNetblocks,
         rawApiResponses,
         ...(isEmail && { emailVerification: processedEmailVerification }),
     };

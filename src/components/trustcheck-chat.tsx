@@ -45,6 +45,8 @@ const formatAnalysisDataForPrompt = (analysisResults: TrustCheckResult): string 
 
     const categoryInfo = `- Kategoryzacja strony: Strona odpowiada: ${analysis.websiteCategorization.websiteResponded}. Kategorie: ${analysis.websiteCategorization.categories.map(c => c.name).join(', ') || 'Brak'}.`;
 
+    const ipNetblocksInfo = `- Analiza sieci IP: ${analysis.ipNetblocks.error ? `Błąd: ${analysis.ipNetblocks.error}` : `ASN: ${analysis.ipNetblocks.asn}, Organizacja: ${analysis.ipNetblocks.organization}, Kraj: ${analysis.ipNetblocks.country}, Zakres: ${analysis.ipNetblocks.range}`}`;
+
 
     return `
 - Zapytanie: ${analysis.query}
@@ -53,7 +55,8 @@ ${senderInfo}
 - Reputacja domeny: Ocena: ${analysis.domainReputation.score}/100 od ${analysis.domainReputation.provider}.
 ${categoryInfo}
 - Dane WHOIS: Domena utworzona ${analysis.whoisData.creationDate} i wygasa ${analysis.whoisData.expiryDate}. Rejestrator: ${analysis.whoisData.registrar}. Właściciel: ${analysis.whoisData.owner || 'Brak danych'}.
-- Rekordy DNS: MX: ${analysis.dnsRecords.mx}, SPF: ${analysis.dnsRecords.spf}, DKIM: ${analysis.dnsRecords.dkim}, DMARC: ${analysis.dnsRecords.dmarc}.
+- Rekordy DNS: Adres IP: ${analysis.dnsRecords.ipAddress || 'Brak'}. MX: ${analysis.dnsRecords.mx}, SPF: ${analysis.dnsRecords.spf}, DKIM: ${analysis.dnsRecords.dkim}, DMARC: ${analysis.dnsRecords.dmarc}.
+${ipNetblocksInfo}
 - Status na czarnej liście: Na liście: ${analysis.blacklistStatus.isListed}. Źródła: ${analysis.blacklistStatus.sources.join(', ') || 'Brak'}.
 - Analiza zagrożeń: Znane zagrożenie: ${analysis.threatIntelligence.isKnownThreat}. Typy zagrożeń: ${analysis.threatIntelligence.threatTypes.join(", ") || "Brak"}.
 - Dane historyczne: Zmiany właściciela: ${analysis.historicalData.changes}. Ostatnia zmiana: ${analysis.historicalData.lastChangeDate}.
