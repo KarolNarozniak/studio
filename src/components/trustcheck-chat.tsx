@@ -159,16 +159,14 @@ ${analysisData}
         {!isCollapsed && (
           <div className="flex-1 flex flex-col min-h-0 relative">
             <div className="absolute inset-0 z-0 opacity-5 p-8 pointer-events-none">
-              <div className="relative w-full h-full">
-                  <Image 
-                    src="/nglt-logo-background.png"
-                    alt="NGLT Logo background"
-                    fill
-                    sizes="(max-width: 768px) 100vw, 384px"
-                    className="object-contain"
-                    priority
-                  />
-              </div>
+                <Image 
+                  src="/nglt-logo-background.png"
+                  alt="NGLT Logo background"
+                  fill
+                  sizes="(max-width: 768px) 100vw, 384px"
+                  className="object-contain"
+                  priority
+                />
             </div>
             <ScrollArea className="flex-1 p-4 z-10" ref={scrollAreaRef}>
               <div className="space-y-4">
@@ -185,9 +183,7 @@ ${analysisData}
                       <p className="text-sm">{message.content}</p>
                     </div>
                     {message.role === 'user' && (
-                       <Avatar className="w-8 h-8">
-                         <Image src="/chat-avatar-dog.png" alt="Chat avatar" width={40} height={40} className="rounded-full"/>
-                       </Avatar>
+                       <Image src="/chat-avatar-dog.png" alt="Chat avatar" width={40} height={40} className="rounded-full"/>
                     )}
                   </div>
                 ))}

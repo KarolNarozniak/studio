@@ -1,4 +1,3 @@
-
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 
@@ -8,14 +7,13 @@ type FakeOrNotLogoProps = {
 
 export default function FakeOrNotLogo({ className, ...props }: FakeOrNotLogoProps) {
   return (
-    <div className={cn("relative", className)} {...props}>
-        <Image
-            src="/nglt-logo-background.png"
-            alt="North Gate Logistics Logo"
-            width={48}
-            height={48}
-            className="rounded-full"
-        />
-    </div>
+    <Image
+        src="/nglt-logo-background.png"
+        alt="North Gate Logistics Logo"
+        width={48}
+        height={48}
+        className={cn("rounded-full", className)}
+        {...props}
+    />
   );
 }
