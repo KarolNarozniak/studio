@@ -11,8 +11,8 @@ export function IntroContent() {
                  <Image 
                     src="https://i.ibb.co/NdXRPhzM/dog-main.png" 
                     alt="Byte - the Fake or Not mascot"
-                    width={250}
-                    height={250}
+                    width={450}
+                    height={450}
                     className="object-contain"
                 />
             </div>
