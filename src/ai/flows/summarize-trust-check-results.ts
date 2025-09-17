@@ -91,8 +91,17 @@ Twoim zadaniem jest ocena, czy domena/email, z którego nadeszła propozycja wsp
   "Domena wykorzystuje homograf, podszywając się pod znaną markę i zawiera formularz logowania. Rezultat: Fałszywy."
 
 ### Dane do analizy:
-Oto pełne dane w formacie JSON:
-{{{json input}}}
+{{#if domainReputation}}Reputacja domeny: {{{json domainReputation}}}{{/if}}
+{{#if websiteCategorization}}Kategoryzacja strony: {{{json websiteCategorization}}}{{/if}}
+{{#if whoisData}}Dane WHOIS: {{{json whoisData}}}{{/if}}
+{{#if ipNetblocks}}Analiza sieci IP: {{{json ipNetblocks}}}{{/if}}
+{{#if dnsRecords}}Rekordy DNS: {{{json dnsRecords}}}{{/if}}
+{{#if blacklistStatus}}Status na czarnej liście: {{{json blacklistStatus}}}{{/if}}
+{{#if threatIntelligence}}Analiza zagrożeń: {{{json threatIntelligence}}}{{/if}}
+{{#if historicalData}}Dane historyczne: {{{json historicalData}}}{{/if}}
+{{#if typosquattingCheck}}Sprawdzenie pod kątem typosquattingu: {{{json typosquattingCheck}}}{{/if}}
+{{#if emailVerification}}Weryfikacja e-maila: {{{json emailVerification}}}{{/if}}
+{{#if contentAnalysis}}Analiza treści e-maila: {{{json contentAnalysis}}}{{/if}}
 `
 });
 
