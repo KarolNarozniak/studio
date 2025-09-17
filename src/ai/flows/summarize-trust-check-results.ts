@@ -79,4 +79,3 @@ const summarizeTrustCheckResultsFlow = ai.defineFlow(
     return output!;
   }
 );
-

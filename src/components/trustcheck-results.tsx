@@ -266,7 +266,7 @@ const TyposquattingSection = ({ data }: { data: TyposquattingCheck }) => (
         <CardContent className="p-4">
             <DetailItem label="Podejrzenie typosquattingu" value={<BooleanBadge value={data.isPotentialTyposquatting} />} tooltip="Sprawdza, czy nazwa domeny jest celowo podobna do popularnej domeny w celu oszukania użytkowników." />
             <DetailItem label="Podejrzana domena oryginalna" value={data.suspectedOriginalDomain} />
-            <DetailItem label="Powód" value={data.isPotentialTyposquatting ? 'Znaleziono dowody na typosquatting.' : 'Nie znaleziono bezpośrednich dowodów na typosquatting.'} />
+            <DetailItem label="Powód" value={data.reason} valueClassName="text-justify"/>
         </CardContent>
     </Card>
 );
@@ -278,7 +278,7 @@ const WhoisSection = ({ data }: { data: WhoisData }) => (
             <DetailItem label="Rejestrator" value={data.registrar} />
             <DetailItem label="Data utworzenia" value={data.creationDate} />
             <DetailItem label="Data wygaśnięcia" value={data.expiryDate} />
-            <DetailItem label="Właściciel" value={data.owner} />
+            <DetailItem label="Właściciel" value={data.owner || 'Brak danych'} />
         </CardContent>
     </Card>
 );
