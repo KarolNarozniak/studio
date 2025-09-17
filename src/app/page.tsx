@@ -13,6 +13,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from 'next/link';
 import { cn } from "@/lib/utils";
+import { IntroContent } from "@/components/intro-content";
 
 export default function Home() {
   const [result, setResult] = useState<TrustCheckResult | null>(null);
@@ -71,6 +72,7 @@ export default function Home() {
             </Card>
             
             {isLoading && <LoadingSkeleton />}
+            {!isLoading && !result && <IntroContent />}
             {result && (
                 <div className="space-y-8">
                     <TrustCheckResults result={result} />
