@@ -1,7 +1,7 @@
 
 "use client";
 
-import type { TrustCheckResult, WhoisData, DnsRecords, BlacklistStatus, ThreatIntelligenceReport, HistoricalData, EmailVerification, DomainReputation, TyposquattingCheck, AnalysisResults, RawApiResponses } from "@/lib/types";
+import type { TrustCheckResult, WhoisData, DnsRecords, BlacklistStatus, ThreatIntelligenceReport, HistoricalData, EmailVerification, DomainReputation, TyposquattingCheck, AnalysisResults, RawApiResponses, WebsiteCategorization } from "@/lib/types";
 import {
   Card,
   CardContent,
@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/tooltip";
 import {
   AlertCircle,
+  BookMarked,
   CheckCircle2,
   ChevronDown,
   Dna,
@@ -196,6 +197,15 @@ export function TrustCheckResults({ result }: TrustCheckResultsProps) {
           </AccordionContent>
         </AccordionItem>
 
+        <AccordionItem value="item-categorization">
+            <AccordionTrigger className="text-lg font-semibold">
+                <SectionIcon icon={BookMarked} /> Kategoryzacja strony
+            </AccordionTrigger>
+            <AccordionContent>
+                <WebsiteCategorizationSection data={analysis.websiteCategorization} rawData={analysis.rawApiResponses?.websiteCategorization} />
+            </AccordionContent>
+        </AccordionItem>
+
         <AccordionItem value="item-typosquatting">
           <AccordionTrigger className="text-lg font-semibold">
             <SectionIcon icon={ScanSearch} /> Weryfikacja pod kątem typosquattingu
@@ -285,6 +295,21 @@ const DomainReputationSection = ({ data, rawData }: { data: DomainReputation, ra
         <CardContent className="p-4">
             <DetailItem label="Dostawca" value={data.provider} />
             <DetailItem label="Ocena" value={`${data.score} / 100`} />
+            <RawDataViewer data={rawData} />
+        </CardContent>
+    </Card>
+);
+
+const WebsiteCategorizationSection = ({ data, rawData }: { data: WebsiteCategorization, rawData: any }) => (
+    <Card className="bg-background/50">
+        <CardContent className="p-4">
+            <DetailItem label="Strona odpowiada" value={<BooleanBadge value={data.websiteResponded} />} tooltip="Czy strona była aktywna i odpowiadała podczas skanowania." />
+            <DetailItem 
+                label="Kategorie" 
+                value={data.categories.length > 0 
+                    ? data.categories.map(cat => `${cat.name} (${(cat.confidence * 100).toFixed(0)}%)`).join(', ') 
+                    : 'Brak'}
+            />
             <RawDataViewer data={rawData} />
         </CardContent>
     </Card>

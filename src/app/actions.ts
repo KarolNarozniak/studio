@@ -44,6 +44,7 @@ export async function performTrustCheck(
     threatIntelligence: `Znane zagrożenie: ${analysis.threatIntelligence.isKnownThreat}. Typy zagrożeń: ${analysis.threatIntelligence.threatTypes.join(', ') || 'Brak'}.`,
     historicalData: `Zmiany właściciela: ${analysis.historicalData.changes}. Ostatnia zmiana: ${analysis.historicalData.lastChangeDate}.`,
     typosquattingCheck: `Potencjalny typosquatting: ${analysis.typosquattingCheck.isPotentialTyposquatting}. Podejrzewana oryginalna domena: ${analysis.typosquattingCheck.suspectedOriginalDomain}. Powód: ${analysis.typosquattingCheck.reason}`,
+    websiteCategorization: `Strona odpowiada: ${analysis.websiteCategorization.websiteResponded}. Kategorie: ${analysis.websiteCategorization.categories.map(c => c.name).join(', ') || 'Brak'}`,
     emailVerification: analysis.isEmail && analysis.emailVerification ? `Dostarczalny: ${analysis.emailVerification.isDeliverable}, Jednorazowy: ${analysis.emailVerification.isDisposable}, Catch-All: ${analysis.emailVerification.isCatchAll}.` : 'Nie dotyczy',
     contentAnalysis: analysis.contentAnalysis ? `Podejrzana: ${analysis.contentAnalysis.isSuspicious}. Powód: ${analysis.contentAnalysis.suspicionReason}` : 'Nie dotyczy',
   });
@@ -91,6 +92,7 @@ export async function runChatDiagnostics(
 ${isEmlAnalysis ? `- Sender's Email: ${analysis.whoisData.domain}` : ''}
 - Overall Summary: ${summary.summary}
 - Domain Reputation: Score: ${analysis.domainReputation.score}/100 from ${analysis.domainReputation.provider}.
+- Website Categorization: Responded: ${analysis.websiteCategorization.websiteResponded}. Categories: ${analysis.websiteCategorization.categories.map(c => c.name).join(', ') || 'None'}.
 - WHOIS Data: Domain created on ${analysis.whoisData.creationDate} and expires on ${analysis.whoisData.expiryDate}. Registrar: ${analysis.whoisData.registrar}. Owner: ${analysis.whoisData.owner || 'N/A'}.
 - DNS Records: MX: ${analysis.dnsRecords.mx}, SPF: ${analysis.dnsRecords.spf}, DKIM: ${analysis.dnsRecords.dkim}, DMARC: ${analysis.dnsRecords.dmarc}.
 - Blacklist Status: Is Listed: ${analysis.blacklistStatus.isListed}. Sources: ${analysis.blacklistStatus.sources.join(', ') || 'None'}.

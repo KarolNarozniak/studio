@@ -1,5 +1,5 @@
 
-import type { AnalysisResults, RawApiResponses } from "@/lib/types";
+import type { AnalysisResults, RawApiResponses, WebsiteCategorization } from "@/lib/types";
 import { detectTyposquatting } from "@/ai/flows/detect-typosquatting";
 
 const API_KEY = process.env.WHOISXML_API_KEY;
@@ -9,6 +9,7 @@ const BASE_URLS = {
     reputation: "https://domain-reputation.whoisxmlapi.com/api/v2",
     threatIntelligence: "https://threat-intelligence.whoisxmlapi.com/api/v1",
     emailVerification: "https://emailverification.whoisxmlapi.com/api/v3",
+    websiteCategorization: "https://website-categorization.whoisxmlapi.com/api/v3",
 };
 
 // --- API Response Types ---
@@ -45,6 +46,11 @@ interface EmailVerificationAPIResponse {
     smtpCheck: "true" | "false" | null;
     disposableCheck: "true" | "false" | null;
     catchAllCheck: "true" | "false" | null;
+}
+
+interface WebsiteCategorizationAPIResponse {
+    categories: { id: number; name: string; confidence: number }[];
+    websiteResponded: boolean;
 }
 
 
@@ -92,6 +98,7 @@ export const getLiveAnalysisResults = async (query: string): Promise<AnalysisRes
         threatData,
         dnsData,
         emailData,
+        categorizationData,
         typosquattingData,
     ] = await Promise.all([
         fetchAPI(BASE_URLS.whois, { domainName: domain, outputFormat: 'JSON' }),
@@ -99,6 +106,7 @@ export const getLiveAnalysisResults = async (query: string): Promise<AnalysisRes
         fetchAPI(BASE_URLS.threatIntelligence, { ioc: domain }),
         fetchAPI(BASE_URLS.dns, { domainName: domain, type: '_all', outputFormat: 'JSON' }),
         isEmail ? fetchAPI(BASE_URLS.emailVerification, { emailAddress: query }) : Promise.resolve(null),
+        fetchAPI(BASE_URLS.websiteCategorization, { url: domain }),
         detectTyposquatting({ domain }),
     ]);
 
@@ -141,6 +149,13 @@ export const getLiveAnalysisResults = async (query: string): Promise<AnalysisRes
         isDisposable: emailInfo.disposableCheck === 'true',
         isCatchAll: emailInfo.catchAllCheck === 'true',
     } : undefined;
+
+    // --- Process Website Categorization ---
+    const catInfo: WebsiteCategorizationAPIResponse | null = categorizationData;
+    const processedCategorization: WebsiteCategorization = {
+        categories: catInfo?.categories ?? [],
+        websiteResponded: catInfo?.websiteResponded ?? false,
+    };
     
     // --- Assemble Raw API Responses ---
     const rawApiResponses: RawApiResponses = {
@@ -149,6 +164,7 @@ export const getLiveAnalysisResults = async (query: string): Promise<AnalysisRes
         threat: threatData,
         dns: dnsData,
         email: emailData,
+        websiteCategorization: categorizationData,
         typosquatting: typosquattingData,
     };
 
@@ -173,6 +189,7 @@ export const getLiveAnalysisResults = async (query: string): Promise<AnalysisRes
             suspectedOriginalDomain: typosquattingData.suspectedOriginalDomain,
             reason: typosquattingData.reason,
         },
+        websiteCategorization: processedCategorization,
         rawApiResponses,
         ...(isEmail && { emailVerification: processedEmailVerification }),
     };

@@ -3,6 +3,16 @@
 import type {SummarizeTrustCheckResultsOutput} from '@/ai/flows/summarize-trust-check-results';
 import type {DetectTyposquattingOutput} from '@/ai/flows/detect-typosquatting';
 
+// A structure for the Website Categorization API response
+export interface WebsiteCategorization {
+  categories: {
+    id: number;
+    name: string;
+    confidence: number;
+  }[];
+  websiteResponded: boolean;
+}
+
 // A generic structure for a trust check analysis result
 export interface AnalysisResults {
   query: string;
@@ -41,6 +51,7 @@ export interface AnalysisResults {
     suspectedOriginalDomain: string;
     reason: string;
   };
+  websiteCategorization: WebsiteCategorization;
   emailVerification?: {
     isDeliverable: boolean;
     isDisposable: boolean;
@@ -61,6 +72,7 @@ export interface RawApiResponses {
     dns: any;
     email: any;
     typosquatting: DetectTyposquattingOutput;
+    websiteCategorization: any;
 }
 
 

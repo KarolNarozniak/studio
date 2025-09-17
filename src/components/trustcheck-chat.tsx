@@ -14,7 +14,6 @@ import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Avatar } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { Skeleton } from './ui/skeleton';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
@@ -44,12 +43,15 @@ const formatAnalysisDataForPrompt = (analysisResults: TrustCheckResult): string 
         ? `- Surowe dane API: ${JSON.stringify(analysis.rawApiResponses)}` 
         : '- Surowe dane API: Brak';
 
+    const categoryInfo = `- Kategoryzacja strony: Strona odpowiada: ${analysis.websiteCategorization.websiteResponded}. Kategorie: ${analysis.websiteCategorization.categories.map(c => c.name).join(', ') || 'Brak'}.`;
+
 
     return `
 - Zapytanie: ${analysis.query}
 ${senderInfo}
 - Ogólne podsumowanie: ${summary.summary}
 - Reputacja domeny: Ocena: ${analysis.domainReputation.score}/100 od ${analysis.domainReputation.provider}.
+${categoryInfo}
 - Dane WHOIS: Domena utworzona ${analysis.whoisData.creationDate} i wygasa ${analysis.whoisData.expiryDate}. Rejestrator: ${analysis.whoisData.registrar}. Właściciel: ${analysis.whoisData.owner || 'Brak danych'}.
 - Rekordy DNS: MX: ${analysis.dnsRecords.mx}, SPF: ${analysis.dnsRecords.spf}, DKIM: ${analysis.dnsRecords.dkim}, DMARC: ${analysis.dnsRecords.dmarc}.
 - Status na czarnej liście: Na liście: ${analysis.blacklistStatus.isListed}. Źródła: ${analysis.blacklistStatus.sources.join(', ') || 'Brak'}.
@@ -173,11 +175,11 @@ ${analysisData}
                 {displayMessages.map((message, index) => (
                   <div key={index} className={cn('flex items-start gap-3', message.role === 'user' ? 'justify-end' : 'justify-start')}>
                     {message.role === 'assistant' && (
-                      <Avatar className="w-8 h-8 bg-primary/20">
+                      <div className="w-8 h-8 bg-primary/20 rounded-full flex-shrink-0">
                          <div className={cn("flex items-center justify-center w-full h-full", message.isError && 'bg-destructive')}>
                           {message.isError ? <AlertTriangle size={20} className="text-destructive-foreground" /> : <Bot size={20} className="text-primary"/>}
                          </div>
-                      </Avatar>
+                      </div>
                     )}
                     <div className={cn('max-w-sm p-3 rounded-lg', message.role === 'user' ? 'bg-primary text-primary-foreground' : (message.isError ? 'bg-destructive/20 text-destructive' : 'bg-muted'))}>
                       <p className="text-sm">{message.content}</p>
@@ -189,11 +191,11 @@ ${analysisData}
                 ))}
                 {isLoading && (
                   <div className="flex items-start gap-3 justify-start">
-                      <Avatar className="w-8 h-8 bg-card">
+                      <div className="w-8 h-8 bg-card rounded-full flex-shrink-0">
                         <div className="flex items-center justify-center w-full h-full">
                            <Bot size={20} className="text-primary"/>
                         </div>
-                      </Avatar>
+                      </div>
                       <div className="max-w-sm p-3 rounded-lg bg-muted">
                         <Skeleton className="w-20 h-4 bg-muted-foreground/30" />
                       </div>

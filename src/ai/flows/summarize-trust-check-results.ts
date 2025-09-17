@@ -19,6 +19,7 @@ const SummarizeTrustCheckResultsInputSchema = z.object({
   threatIntelligence: z.string().describe('Raport z analizy zagrożeń.'),
   historicalData: z.string().describe('Dane historyczne domeny.'),
   typosquattingCheck: z.string().describe('Analiza, czy domena jest potencjalną próbą typosquattingu.'),
+  websiteCategorization: z.string().describe('Kategorie, do których przypisana jest strona internetowa, np. "Wiadomości i polityka", "Biznes".'),
   emailVerification: z.string().optional().describe('Szczegóły weryfikacji e-maila, jeśli dotyczy.'),
   contentAnalysis: z.string().optional().describe('Analiza AI treści e-maila pod kątem phishingu lub taktyk inżynierii społecznej.'),
 });
@@ -46,17 +47,18 @@ const prompt = ai.definePrompt({
   Bazując na poniższych danych, wygeneruj zwięzłe, jedno- lub dwuzdaniowe podsumowanie oraz rekomendację "Fake" (Fałszywy) lub "Real" (Prawdziwy).
   Odpowiedz w języku polskim.
 
-  Pamiętaj, że celem jest ocena wiarygodności partnera biznesowego. Bądź ostrożny w swoich rekomendacjach. Jeśli istnieją jakiekolwiek poważne sygnały ostrzegawcze (np. podejrzenie typosquattingu, zła reputacja, obecność na czarnych listach, podejrzana treść maila), rekomendacja powinna brzmieć "Fake".
+  Pamiętaj, że celem jest ocena wiarygodności partnera biznesowego. Bądź ostrożny w swoich rekomendacjach. Jeśli istnieją jakiekolwiek poważne sygnały ostrzegawcze (np. podejrzenie typosquattingu, zła reputacja, obecność na czarnych listach, podejrzana treść maila, kategoria strony internetowej niezwiązana z biznesem/logistyką), rekomendacja powinna brzmieć "Fake".
 
   Format podsumowania powinien być podobny do tego przykładu:
   "Domena ma dobrą reputację, nie jest na czarnych listach i nie wygląda na próbę typosquattingu. Rekordy DNS są w większości poprawne. Rezultat: Możesz nawiązać współpracę."
   LUB
-  "Domena jest potencjalną próbą typosquattingu i znajduje się na czarnej liście. Reputacja jest bardzo niska. Rezultat: Sprawdź głębiej dany mail/domenę, zalecana najwyższa ostrożność."
+  "Domena jest potencjalną próbą typosquattingu i znajduje się na czarnej liście. Kategoria strony ('Gry') jest nieoczekiwana dla partnera biznesowego. Reputacja jest bardzo niska. Rezultat: Sprawdź głębiej dany mail/domenę, zalecana najwyższa ostrożność."
 
   Twoja odpowiedź musi być w formacie JSON.
 
   Dane do analizy:
   Reputacja domeny: {{{domainReputation}}}
+  Kategoryzacja strony: {{{websiteCategorization}}}
   Dane WHOIS: {{{whoisData}}}
   Rekordy DNS: {{{dnsRecords}}}
   Status na czarnej liście: {{{blacklistStatus}}}
