@@ -1,3 +1,4 @@
+
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 
@@ -9,7 +10,7 @@ export default function FakeOrNotLogo({ className, ...props }: FakeOrNotLogoProp
   return (
     <div className={cn("relative", className)} {...props}>
         <Image
-            src="https://northgatelogistics.pl/wp-content/uploads/2023/01/NGLT-kolko-BIALEsrodek.png"
+            src="/nglt-logo-background.png"
             alt="North Gate Logistics Logo"
             width={48}
             height={48}

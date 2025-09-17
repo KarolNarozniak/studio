@@ -10,8 +10,9 @@ import { TrustCheckForm } from "@/components/trustcheck-form";
 import { TrustCheckResults } from "@/components/trustcheck-results";
 import { TrustCheckChat } from "@/components/trustcheck-chat";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from 'next/link';
+import { cn } from "@/lib/utils";
 
 export default function Home() {
   const [result, setResult] = useState<TrustCheckResult | null>(null);
@@ -39,42 +40,53 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-col items-center min-h-screen p-4 sm:p-6 md:p-8">
-      <main className="w-full max-w-4xl mx-auto">
-        <header className="flex items-center justify-between text-center mb-8 border-b-2 border-primary pb-4">
-          <div className="flex items-center gap-4">
-            <FakeOrNotLogo className="w-12 h-12" />
-            <h1 className="text-4xl md:text-5xl font-bold text-primary tracking-tight">
-              Fake or Not?
-            </h1>
+    <div className="flex flex-col min-h-screen">
+      <header className="flex items-center justify-between px-4 sm:px-6 md:px-8 py-4 border-b-2 border-primary">
+        <div className="flex items-center gap-4">
+          <FakeOrNotLogo className="w-12 h-12" />
+          <h1 className="text-3xl md:text-4xl font-bold text-primary tracking-tight">
+            Fake or Not?
+          </h1>
+        </div>
+        <nav className="hidden md:flex gap-6 text-lg text-foreground">
+          <Link href="/" className="hover:text-primary transition-colors">Strona główna</Link>
+          <Link href="/how-it-works" className="hover:text-primary transition-colors">Jak to działa?</Link>
+          <Link href="/examples" className="hover:text-primary transition-colors">Przykłady fałszerstw</Link>
+        </nav>
+      </header>
+
+      <div className="flex flex-1">
+        <main className={cn(
+          "flex-1 transition-all duration-300 ease-in-out",
+          result ? "md:w-2/3" : "w-full"
+        )}>
+          <div className="p-4 sm:p-6 md:p-8 w-full max-w-4xl mx-auto">
+            <Card className="mb-8 shadow-lg border-2 border-primary/50 bg-card">
+              <CardHeader className="text-center">
+                <CardTitle className="text-3xl text-primary">Analizator Maila i Domen</CardTitle>
+              </CardHeader>
+              <CardContent className="p-6">
+                <TrustCheckForm onSubmit={handleCheck} isLoading={isLoading} />
+              </CardContent>
+            </Card>
+            
+            {isLoading && <LoadingSkeleton />}
+            {result && (
+                <div className="space-y-8">
+                    <TrustCheckResults result={result} />
+                </div>
+            )}
           </div>
-          <nav className="flex gap-6 text-lg text-foreground">
-            <Link href="/" className="hover:text-primary transition-colors">Strona główna</Link>
-            <Link href="/how-it-works" className="hover:text-primary transition-colors">Jak to działa?</Link>
-            <Link href="/examples" className="hover:text-primary transition-colors">Przykłady fałszerstw</Link>
-          </nav>
-        </header>
-
-        <Card className="mb-8 shadow-lg border-2 border-primary/50 bg-card">
-           <CardHeader className="text-center">
-             <CardTitle className="text-3xl text-primary">Analizator Maila i Domen</CardTitle>
-           </CardHeader>
-          <CardContent className="p-6">
-            <TrustCheckForm onSubmit={handleCheck} isLoading={isLoading} />
-          </CardContent>
-        </Card>
+        </main>
         
-        {isLoading && <LoadingSkeleton />}
         {result && (
-            <div className="space-y-8">
-                <TrustCheckResults result={result} />
-                <TrustCheckChat result={result} />
-            </div>
+          <aside className="hidden md:block">
+            <TrustCheckChat result={result} />
+          </aside>
         )}
+      </div>
 
-      </main>
-
-      <footer className="w-full max-w-4xl mx-auto text-center mt-auto pt-8">
+      <footer className="w-full text-center p-4 border-t-2 border-primary mt-auto">
         <p className="text-sm text-muted-foreground">
           © 2025 North Gate Logistics. Wszelkie prawa zastrzeżone.
         </p>

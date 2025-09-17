@@ -3,22 +3,21 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { z } from 'zod';
-import { useForm } from 'react-hook-form'; // Corrected: import useForm from react-hook-form
-import { zodResolver } from '@hookform/resolvers/zod'; // Corrected: import zodResolver
-import { Bot, Loader2, Send, User, AlertTriangle } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Bot, Loader2, Send, User, AlertTriangle, PanelRightClose, PanelRightOpen } from 'lucide-react';
+import Image from 'next/image';
 
-import type { TrustCheckResult, ChatMessage } from '@/lib/types'; // Using shared ChatMessage type
+import type { TrustCheckResult, ChatMessage } from '@/lib/types';
 import { chatAboutResults } from '@/app/actions';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { Skeleton } from './ui/skeleton';
-
-// Removed local ChatMessage interface, it's now imported from '@/lib/types'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 
 interface DisplayMessage {
   role: 'user' | 'assistant';
@@ -34,11 +33,8 @@ const formatAnalysisDataForPrompt = (analysisResults: TrustCheckResult): string 
     const { analysis, summary } = analysisResults;
     const isEmlAnalysis = analysis.query.endsWith('.eml');
     
-    // If it's an EML analysis, the 'whoisData.domain' actually holds the sender's email.
-    // The 'query' holds the filename. We want the chat to be aware of the sender's email.
     const senderInfo = isEmlAnalysis ? `- Email nadawcy: ${analysis.whoisData.domain}` : '';
     
-    // Include the extracted email body in the prompt for context.
     const contentInfo = analysis.contentAnalysis 
         ? `- Analiza treści e-maila: Podejrzana: ${analysis.contentAnalysis.isSuspicious}. Powód: ${analysis.contentAnalysis.suspicionReason}\n- Wyodrębniona treść e-maila: ${analysis.contentAnalysis.extractedBody}` 
         : '- Analiza treści e-maila: Nie dotyczy';
@@ -62,8 +58,9 @@ ${contentInfo}
 
 export function TrustCheckChat({ result }: { result: TrustCheckResult }) {
   const [displayMessages, setDisplayMessages] = useState<DisplayMessage[]>([]);
-  const [history, setHistory] = useState<ChatMessage[]>([]); // Using imported ChatMessage type
+  const [history, setHistory] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -78,6 +75,7 @@ ${analysisData}
     
     setHistory([{ role: 'system', parts: [{ text: systemPrompt }] }]);
     setDisplayMessages([]);
+    setIsCollapsed(false); // Open chat when new results come in
   }, [result]);
 
   useEffect(() => {
@@ -127,84 +125,98 @@ ${analysisData}
   };
 
   return (
-    <Card className="shadow-lg">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Bot />
-          Zadaj pytanie dotyczące wyników
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="flex flex-col h-[400px]">
-          <ScrollArea className="flex-1 p-4 border rounded-lg" ref={scrollAreaRef}>
-            <div className="space-y-4">
-              {displayMessages.length === 0 ? (
-                <div className="text-center text-muted-foreground">
-                  Zapytaj mnie o cokolwiek z raportu, na przykład: "Dlaczego reputacja domeny jest niska?"
-                </div>
-              ) : (
-                displayMessages.map((message, index) => (
+    <TooltipProvider>
+      <div className={cn(
+        "h-full bg-[#1e1e1e] text-white flex flex-col transition-all duration-300 ease-in-out border-l-2 border-primary/50",
+        isCollapsed ? "w-12" : "w-96"
+      )}>
+        <div className="flex items-center justify-between p-2 border-b border-primary/20">
+          {!isCollapsed && <h3 className="font-semibold text-lg ml-2">Asystent AI</h3>}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="ghost" size="icon" onClick={() => setIsCollapsed(!isCollapsed)} className="text-white hover:bg-white/10 hover:text-white">
+                {isCollapsed ? <PanelRightOpen /> : <PanelRightClose />}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="left">
+              <p>{isCollapsed ? "Otwórz czat" : "Zamknij czat"}</p>
+            </TooltipContent>
+          </Tooltip>
+        </div>
+
+        {!isCollapsed && (
+          <div className="flex-1 flex flex-col min-h-0 relative">
+            <Image 
+              src="/nglt-logo-background.png"
+              alt="NGLT Logo background"
+              fill
+              className="object-contain opacity-5 p-8"
+            />
+            <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
+              <div className="space-y-4">
+                {displayMessages.map((message, index) => (
                   <div key={index} className={cn('flex items-start gap-3', message.role === 'user' ? 'justify-end' : 'justify-start')}>
                     {message.role === 'assistant' && (
-                      <Avatar className="w-8 h-8">
-                        <AvatarFallback className={cn(message.isError && 'bg-destructive')}>
-                          {message.isError ? <AlertTriangle size={20} className="text-destructive-foreground" /> : <Bot size={20}/>}
-                          </AvatarFallback>
+                      <Avatar className="w-8 h-8 bg-card">
+                         <div className={cn("flex items-center justify-center w-full h-full", message.isError && 'bg-destructive')}>
+                          {message.isError ? <AlertTriangle size={20} className="text-destructive-foreground" /> : <Bot size={20} className="text-primary"/>}
+                         </div>
                       </Avatar>
                     )}
                     <div className={cn('max-w-sm p-3 rounded-lg', message.role === 'user' ? 'bg-primary text-primary-foreground' : (message.isError ? 'bg-destructive/20 text-destructive' : 'bg-muted'))}>
                       <p className="text-sm">{message.content}</p>
                     </div>
                     {message.role === 'user' && (
-                      <Avatar className="w-8 h-8">
-                        <AvatarFallback><User size={20}/></AvatarFallback>
-                      </Avatar>
+                      <div className="w-8 h-8" />
                     )}
                   </div>
-                ))
-              )}
-               {isLoading && !displayMessages.some(m => m.isError) && (
-                 <div className="flex items-start gap-3 justify-start">
-                    <Avatar className="w-8 h-8">
-                      <AvatarFallback><Bot size={20}/></AvatarFallback>
-                    </Avatar>
-                    <div className="max-w-sm p-3 rounded-lg bg-muted">
-                      <Skeleton className="w-20 h-4" />
-                    </div>
-                 </div>
+                ))}
+                {isLoading && (
+                  <div className="flex items-start gap-3 justify-start">
+                      <Avatar className="w-8 h-8 bg-card">
+                        <div className="flex items-center justify-center w-full h-full">
+                           <Bot size={20} className="text-primary"/>
+                        </div>
+                      </Avatar>
+                      <div className="max-w-sm p-3 rounded-lg bg-muted">
+                        <Skeleton className="w-20 h-4 bg-muted-foreground/30" />
+                      </div>
+                  </div>
                 )}
+              </div>
+            </ScrollArea>
+            <div className="p-4 border-t border-primary/20">
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(handleSubmit)} className="flex items-center gap-2">
+                  <Avatar className="w-10 h-10">
+                    <Image src="/chat-avatar-dog.png" alt="Chat avatar" width={40} height={40} className="rounded-full"/>
+                  </Avatar>
+                  <FormField
+                    control={form.control}
+                    name="message"
+                    render={({ field }) => (
+                      <FormItem className="w-full">
+                        <FormControl>
+                          <Input
+                            placeholder="Napisz swoją wiadomość..."
+                            {...field}
+                            disabled={isLoading}
+                            autoComplete="off"
+                            className="bg-card border-primary/50 text-base"
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <Button type="submit" disabled={isLoading} size="icon" className="bg-primary hover:bg-primary/90">
+                    {isLoading ? <Loader2 className="animate-spin" /> : <Send />}
+                  </Button>
+                </form>
+              </Form>
             </div>
-          </ScrollArea>
-          <div className="mt-4">
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(handleSubmit)} className="flex items-start gap-2">
-                <FormField
-                  control={form.control}
-                  name="message"
-                  render={({ field }) => (
-                    <FormItem className="w-full">
-                      <FormControl>
-                        <Input
-                          placeholder="Napisz swoją wiadomość..."
-                          {...field}
-                          disabled={isLoading}
-                          autoComplete="off"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <Button type="submit" disabled={isLoading} size="icon">
-                  {isLoading ? <Loader2 className="animate-spin" /> : <Send />}
-                </Button>
-              </form>
-            </Form>
           </div>
-        </div>
-      </CardContent>
-    </Card>
+        )}
+      </div>
+    </TooltipProvider>
   );
 }
-
-    

@@ -76,6 +76,34 @@ export function TrustCheckForm({ onSubmit, isLoading }: TrustCheckFormProps) {
       
       // Manually validate the file using the base schema
       const fileValidation = baseSchema.shape.file.safeParse(files);
+[
+  {
+    "idTestu": "phishing-dhl-podszycie-01",
+    "opis": "Testuje zdolność systemu do wykrywania e-maila phishingowego, w którym nadawca podszywa się pod firmę DHL i tworzy poczucie pilności.",
+    "typWejscia": "plik",
+    "daneWejsciowe": {
+      "zapytanie": "dhl_problem_z_dostawa.eml",
+      "zawartoscPliku": "From: \"DHL Express\" <support@dhl-express.de>\nTo: \"jan.kowalski@northgatelogistics.pl\" \nSubject: UWAGA: Nieudana dostawa zamowienia #PL02347654 (20) No.\nDate: Wed, 15 Nov 2023 08:45:00 +0100\n\nWitaj Jan,\n\nNiestety, mieliśmy problem z doręczeniem Twojej paczki #PL02347654. Kurier nie mógł jej dostarczyć, ponieważ nikogo nie było w domu.\n\nAby ponownie ustalić termin dostawy, proszę kliknąć w poniższy link i wypełnić formularz online:\n\nhttps://www.real-dhl-link.com/track/redirect?id=PL2347654\n\nJeśli paczka nie zostanie odebrana w ciągu 4 godzin, zostanie odesłana do naszego magazynu, a Ty zostaniesz obciążony opłatą za składowanie.\n\nDziękujemy,\nZespół DHL"
+    },
+    "oczekiwanyWynik": {
+      "rekomendacja": "Fake",
+      "wskaznikZaufania": {
+        "min": 0.8,
+        "max": 1.0
+      },
+      "slowaKluczowePodsumowania": [
+        "podejrzana",
+        "phishing",
+        "czarnej liście",
+        "ostrożność"
+      ],
+      "analizaTresci": {
+        "czyPodejrzany": true,
+        "slowaKluczoweUzasadnienia": ["pilne", "groźba", "opłata", "link"]
+      }
+    }
+  }
+]
       if (!fileValidation.success) {
         form.setError("file", { type: "manual", message: fileValidation.error.errors[0].message });
         return;
