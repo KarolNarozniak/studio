@@ -8,7 +8,7 @@ type FakeOrNotLogoProps = {
 export default function FakeOrNotLogo({ className, ...props }: FakeOrNotLogoProps) {
   return (
     <Image
-        src="/nglt-logo-background.png"
+        src="https://i.ibb.co/0pztWx45/nglt-logo-background.png"
         alt="North Gate Logistics Logo"
         width={48}
         height={48}

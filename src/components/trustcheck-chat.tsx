@@ -165,7 +165,7 @@ ${analysisData}
           <div className="flex-1 flex flex-col min-h-0 relative">
             <div className="absolute inset-0 z-0 opacity-5 p-8 pointer-events-none">
                 <Image 
-                  src="/nglt-logo-background.png"
+                  src="https://i.ibb.co/0pztWx45/nglt-logo-background.png"
                   alt="NGLT Logo background"
                   fill
                   sizes="(max-width: 768px) 100vw, 384px"
@@ -188,7 +188,7 @@ ${analysisData}
                       <p className="text-sm">{message.content}</p>
                     </div>
                     {message.role === 'user' && (
-                       <Image src="/chat-avatar-dog.png" alt="Chat avatar" width={40} height={40} className="rounded-full"/>
+                       <Image src="https://i.ibb.co/tTC7NJPt/chat-avatar-dog.png" alt="Chat avatar" width={40} height={40} className="rounded-full"/>
                     )}
                   </div>
                 ))}
