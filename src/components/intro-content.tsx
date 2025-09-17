@@ -1,4 +1,3 @@
-
 import { Card, CardContent } from '@/components/ui/card';
 import Image from 'next/image';
 
@@ -11,9 +10,9 @@ export function IntroContent() {
                  <Image 
                     src="https://i.ibb.co/NdXRPhzM/dog-main.png" 
                     alt="Byte - the Fake or Not mascot"
-                    width={450}
-                    height={450}
-                    className="object-contain"
+                    width={900}
+                    height={900}
+                    className="object-contain w-full h-auto"
                 />
             </div>
             <div className="md:col-span-2 space-y-4 text-foreground/90">
