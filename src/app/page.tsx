@@ -82,7 +82,7 @@ export default function Home() {
         </main>
         
         {result && (
-          <aside className="hidden md:block w-96">
+          <aside className="hidden md:block w-96 sticky top-0 h-screen">
             <TrustCheckChat result={result} />
           </aside>
         )}

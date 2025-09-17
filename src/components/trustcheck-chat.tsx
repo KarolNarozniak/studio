@@ -151,7 +151,7 @@ ${analysisData}
         isCollapsed ? "w-12" : "w-96"
       )}>
         <div className="flex items-center justify-between p-2 border-b border-primary/20">
-          {!isCollapsed && <h3 className="font-semibold text-lg ml-2">Asystent AI</h3>}
+          {!isCollapsed && <h3 className="font-semibold text-lg ml-2">Pogadaj z Detektywem 🕵️🐶</h3>}
           <Tooltip>
             <TooltipTrigger asChild>
               <Button variant="ghost" size="icon" onClick={() => setIsCollapsed(!isCollapsed)} className="text-foreground hover:bg-muted">
@@ -181,27 +181,23 @@ ${analysisData}
                 {displayMessages.map((message, index) => (
                   <div key={index} className={cn('flex items-start gap-3', message.role === 'user' ? 'justify-end' : 'justify-start')}>
                     {message.role === 'assistant' && (
-                      <div className="w-8 h-8 bg-primary/20 rounded-full flex-shrink-0">
-                         <div className={cn("flex items-center justify-center w-full h-full", message.isError && 'bg-destructive')}>
-                          {message.isError ? <AlertTriangle size={20} className="text-destructive-foreground" /> : <Bot size={20} className="text-primary"/>}
-                         </div>
-                      </div>
+                        <Image src="https://i.ibb.co/tTC7NJPt/chat-avatar-dog.png" alt="Chat avatar" width={40} height={40} className="rounded-full flex-shrink-0"/>
                     )}
                     <div className={cn('max-w-sm p-3 rounded-lg', message.role === 'user' ? 'bg-primary text-primary-foreground' : (message.isError ? 'bg-destructive/20 text-destructive' : 'bg-muted'))}>
-                      <p className="text-sm">{message.content}</p>
+                      {message.isError ? (
+                        <div className="flex items-start gap-2">
+                           <AlertTriangle size={20} className="text-destructive mt-0.5" />
+                           <p className="text-sm">{message.content}</p>
+                        </div>
+                      ) : (
+                         <p className="text-sm">{message.content}</p>
+                      )}
                     </div>
-                    {message.role === 'user' && (
-                       <Image src="https://i.ibb.co/tTC7NJPt/chat-avatar-dog.png" alt="Chat avatar" width={40} height={40} className="rounded-full"/>
-                    )}
                   </div>
                 ))}
                 {isLoading && (
                   <div className="flex items-start gap-3 justify-start">
-                      <div className="w-8 h-8 bg-card rounded-full flex-shrink-0">
-                        <div className="flex items-center justify-center w-full h-full">
-                           <Bot size={20} className="text-primary"/>
-                        </div>
-                      </div>
+                      <Image src="https://i.ibb.co/tTC7NJPt/chat-avatar-dog.png" alt="Chat avatar" width={40} height={40} className="rounded-full flex-shrink-0"/>
                       <div className="max-w-sm p-3 rounded-lg bg-muted">
                         <Skeleton className="w-20 h-4 bg-muted-foreground/30" />
                       </div>
