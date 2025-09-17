@@ -26,6 +26,7 @@ const AnalysisResultsSchema = z.object({
   typosquattingCheck: z.any(),
   websiteCategorization: z.any(),
   ipNetblocks: z.any(),
+  websiteContent: z.any().optional(),
   emailVerification: z.any().optional(),
   contentAnalysis: z.any().optional(),
   rawApiResponses: z.any().optional(),
@@ -66,12 +67,13 @@ Twoim zadaniem jest ocena, czy domena/email, z którego nadeszła propozycja wsp
   - Jeśli nadawca korzysta z darmowego dostawcy poczty (Gmail, Outlook, Proton, Yahoo, WP, Onet itp.), to jest to **silny sygnał ostrzegawczy** – poważna firma logistyczna lub przewoźnik powinien używać własnej domeny. W takim przypadku współpraca jest odradzana.
 - **Wiek domeny (WHOIS)**: domeny młodsze niż rok → wysokie ryzyko; stare i stabilne → pozytywny sygnał.
 - **Reputacja domeny**: wynik < 50 → mocny sygnał ostrzegawczy.
-- **Kraj rejestracji i hostingu**: nietypowe lokalizacje (RU, CN, NG itp.) zwiększają ryzyko.
+- **Kraj rejestracji i hostingu (IP Netblocks)**: nietypowe lokalizacje (RU, CN, NG itp.) zwiększają ryzyko.
 - **Polityki SPF, DKIM, DMARC**: 
   - "fail" = sygnał ryzyka, 
   - "pass" = pozytywny sygnał, 
   - ale same w sobie nie przesądzają o wyniku.
 - **Treść e-maila**: sprawdzaj elementy socjotechniki (pilność, groźby, prośba o przelew, linki zewnętrzne, załączniki .exe/.zip).
+- **Treść strony internetowej**: Przeanalizuj treść pod kątem profesjonalizmu, spójności z deklarowaną działalnością (logistyka/transport) i obecności danych kontaktowych. Brak strony, "lorem ipsum" lub treść niezwiązana z branżą to sygnały ostrzegawcze.
 - **Typosquatting / lookalike**: 
   - zagrożenie tylko przy oczywistych przypadkach (homograf, literówka w znanej marce, kopiowanie layoutu),
   - nie klasyfikuj jako atak, jeśli to po prostu dwie różne firmy o podobnych nazwach.
@@ -80,7 +82,7 @@ Twoim zadaniem jest ocena, czy domena/email, z którego nadeszła propozycja wsp
 
 ### Przykłady formatu podsumowania:
 - Real:  
-  "Domena ma ponad 10 lat, wysoką reputację, poprawne SPF/DMARC i brak oznak typosquattingu. Rezultat: Możesz nawiązać współpracę."
+  "Domena ma ponad 10 lat, wysoką reputację, poprawne SPF/DMARC i brak oznak typosquattingu. Treść strony jest profesjonalna. Rezultat: Możesz nawiązać współpracę."
 - Fake:  
   "Adres korzysta z darmowego Gmaila, domena jest nowa i reputacja < 50. Treść wiadomości zawiera elementy socjotechniki. Rezultat: Fałszywy."
 - Fake:  
@@ -88,7 +90,7 @@ Twoim zadaniem jest ocena, czy domena/email, z którego nadeszła propozycja wsp
 - Real:  
   "Domena banku z wieloletnią historią, EV TLS i pełnymi politykami SPF/DMARC. Rezultat: Prawdziwy partner."
 - Fake:  
-  "Domena wykorzystuje homograf, podszywając się pod znaną markę i zawiera formularz logowania. Rezultat: Fałszywy."
+  "Domena wykorzystuje homograf, podszywając się pod znaną markę i zawiera formularz logowania. Strona internetowa nie istnieje. Rezultat: Fałszywy."
 
 ### Dane do analizy:
 {{#if domainReputation}}Reputacja domeny: {{{json domainReputation}}}{{/if}}
@@ -100,6 +102,7 @@ Twoim zadaniem jest ocena, czy domena/email, z którego nadeszła propozycja wsp
 {{#if threatIntelligence}}Analiza zagrożeń: {{{json threatIntelligence}}}{{/if}}
 {{#if historicalData}}Dane historyczne: {{{json historicalData}}}{{/if}}
 {{#if typosquattingCheck}}Sprawdzenie pod kątem typosquattingu: {{{json typosquattingCheck}}}{{/if}}
+{{#if websiteContent}}Treść strony internetowej: {{{json websiteContent}}}{{/if}}
 {{#if emailVerification}}Weryfikacja e-maila: {{{json emailVerification}}}{{/if}}
 {{#if contentAnalysis}}Analiza treści e-maila: {{{json contentAnalysis}}}{{/if}}
 `

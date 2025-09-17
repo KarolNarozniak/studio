@@ -34,6 +34,7 @@ import {
   BookMarked,
   CheckCircle2,
   ChevronDown,
+  ClipboardCopy,
   Dna,
   FileClock,
   FileText,
@@ -206,6 +207,17 @@ export function TrustCheckResults({ result }: TrustCheckResultsProps) {
             </AccordionContent>
         </AccordionItem>
 
+        {analysis.websiteContent && (
+          <AccordionItem value="item-website-content">
+            <AccordionTrigger className="text-lg font-semibold">
+                <SectionIcon icon={ClipboardCopy} /> Treść strony internetowej
+            </AccordionTrigger>
+            <AccordionContent>
+                <WebsiteContentSection data={analysis.websiteContent} rawData={analysis.rawApiResponses?.websiteContent} />
+            </AccordionContent>
+          </AccordionItem>
+        )}
+
         <AccordionItem value="item-typosquatting">
           <AccordionTrigger className="text-lg font-semibold">
             <SectionIcon icon={ScanSearch} /> Weryfikacja pod kątem typosquattingu
@@ -324,6 +336,24 @@ const WebsiteCategorizationSection = ({ data, rawData }: { data: WebsiteCategori
     </Card>
 );
 
+const WebsiteContentSection = ({ data, rawData }: { data: NonNullable<AnalysisResults['websiteContent']>, rawData: any }) => (
+    <Card className="bg-background/50">
+        <CardContent className="p-4">
+            {data.error ? (
+                <DetailItem label="Błąd" value={data.error} valueClassName="text-destructive" />
+            ) : (
+                <div className="pt-2">
+                    <span className="text-sm text-muted-foreground">Pobrana treść</span>
+                    <pre className="mt-1 text-xs whitespace-pre-wrap font-mono bg-muted p-2 rounded-md max-h-96 overflow-y-auto">
+                        {data.content || "Brak treści do wyświetlenia."}
+                    </pre>
+                </div>
+            )}
+            <RawDataViewer data={rawData} buttonText="Pokaż surowe dane ze crawlera" />
+        </CardContent>
+    </Card>
+);
+
 const TyposquattingSection = ({ data, rawData }: { data: TyposquattingCheck, rawData: any }) => (
     <Card className="bg-background/50">
         <CardContent className="p-4">
@@ -419,5 +449,3 @@ const HistoricalDataSection = ({ data }: { data: HistoricalData }) => (
         </CardContent>
     </Card>
 );
-
-    

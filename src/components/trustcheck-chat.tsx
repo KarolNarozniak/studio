@@ -47,6 +47,8 @@ const formatAnalysisDataForPrompt = (analysisResults: TrustCheckResult): string 
 
     const ipNetblocksInfo = `- Analiza sieci IP: ${analysis.ipNetblocks.error ? `Błąd: ${analysis.ipNetblocks.error}` : `ASN: ${analysis.ipNetblocks.asn}, Organizacja: ${analysis.ipNetblocks.organization}, Kraj: ${analysis.ipNetblocks.country}, Zakres: ${analysis.ipNetblocks.range}`}`;
 
+    const websiteContentInfo = `- Treść strony internetowej: ${analysis.websiteContent?.error ? `Błąd: ${analysis.websiteContent.error}` : (analysis.websiteContent?.content ? `"${analysis.websiteContent.content.substring(0, 500)}..."` : 'Brak')}`;
+
 
     return `
 - Zapytanie: ${analysis.query}
@@ -61,6 +63,7 @@ ${ipNetblocksInfo}
 - Analiza zagrożeń: Znane zagrożenie: ${analysis.threatIntelligence.isKnownThreat}. Typy zagrożeń: ${analysis.threatIntelligence.threatTypes.join(", ") || "Brak"}.
 - Dane historyczne: Zmiany właściciela: ${analysis.historicalData.changes}. Ostatnia zmiana: ${analysis.historicalData.lastChangeDate}.
 - Sprawdzenie pod kątem typosquattingu: Potencjalny typosquatting: ${analysis.typosquattingCheck.isPotentialTyposquatting}. Podejrzewana oryginalna domena: ${analysis.typosquattingCheck.suspectedOriginalDomain}. Powód: ${analysis.typosquattingCheck.reason}
+${websiteContentInfo}
 - Weryfikacja e-maila: ${analysis.isEmail && analysis.emailVerification ? `Dostarczalny: ${analysis.emailVerification.isDeliverable}, Jednorazowy: ${analysis.emailVerification.isDisposable}, Catch-All: ${analysis.emailVerification.isCatchAll}.` : 'Nie dotyczy'}
 ${contentInfo}
 ${rawDataInfo}

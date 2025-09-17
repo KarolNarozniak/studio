@@ -89,6 +89,7 @@ ${isEmlAnalysis ? `- Sender's Email: ${analysis.whoisData.domain}` : ''}
 - Threat Intelligence: Is Known Threat: ${analysis.threatIntelligence.isKnownThreat}. Threat Types: ${analysis.threatIntelligence.threatTypes.join(", ") || "None"}.
 - Historical Data: Ownership Changes: ${analysis.historicalData.changes}. Last Change: ${analysis.historicalData.lastChangeDate}.
 - Typosquatting Check: Is Potential Typosquatting: ${analysis.typosquattingCheck.isPotentialTyposquatting}. Suspected Original: ${analysis.typosquattingCheck.suspectedOriginalDomain}. Reason: ${analysis.typosquattingCheck.reason}
+- Website Content: ${analysis.websiteContent?.error ? `Error: ${analysis.websiteContent.error}` : (analysis.websiteContent?.content ? `${analysis.websiteContent.content.substring(0, 200)}...` : 'N/A')}
 - Email Verification: ${analysis.isEmail && analysis.emailVerification ? `Deliverable: ${analysis.emailVerification.isDeliverable}, Disposable: ${analysis.emailVerification.isDisposable}, Catch-All: ${analysis.emailVerification.isCatchAll}.` : 'N/A'}
 - E-mail Content Analysis: ${analysis.contentAnalysis ? `Suspicious: ${analysis.contentAnalysis.isSuspicious}. Reason: ${analysis.contentAnalysis.suspicionReason}` : 'N/A'}
 - Raw API Responses: ${analysis.rawApiResponses ? JSON.stringify(analysis.rawApiResponses) : 'N/A'}

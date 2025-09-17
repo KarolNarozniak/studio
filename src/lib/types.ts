@@ -63,6 +63,10 @@ export interface AnalysisResults {
   };
   websiteCategorization: WebsiteCategorization;
   ipNetblocks: IpNetblocks;
+  websiteContent?: {
+    content: string | null;
+    error?: string;
+  };
   emailVerification?: {
     isDeliverable: boolean;
     isDisposable: boolean;
@@ -85,6 +89,7 @@ export interface RawApiResponses {
   typosquatting: DetectTyposquattingOutput;
   websiteCategorization: any;
   ipNetblocks: any;
+  websiteContent: any;
 }
 
 
