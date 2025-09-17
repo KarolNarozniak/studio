@@ -47,7 +47,7 @@ const formatAnalysisDataForPrompt = (analysisResults: TrustCheckResult): string 
 
     const ipNetblocksInfo = `- Analiza sieci IP: ${analysis.ipNetblocks.error ? `Błąd: ${analysis.ipNetblocks.error}` : `ASN: ${analysis.ipNetblocks.asn}, Organizacja: ${analysis.ipNetblocks.organization}, Kraj: ${analysis.ipNetblocks.country}, Zakres: ${analysis.ipNetblocks.range}`}`;
 
-    const websiteContentInfo = `- Treść strony internetowej: ${analysis.websiteContent?.error ? `Błąd: ${analysis.websiteContent.error}` : (analysis.websiteContent?.content ? `"${analysis.websiteContent.content.substring(0, 500)}..."` : 'Brak')}`;
+    const websiteContentInfo = `- Treść strony internetowej: ${analysis.websiteContent?.error ? `Błąd: ${analysis.websiteContent.error}` : (analysis.websiteContent?.summary ? `Podsumowanie: "${analysis.websiteContent.summary}"` : 'Brak')}`;
 
 
     return `

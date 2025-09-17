@@ -1,6 +1,7 @@
 import type { AnalysisResults, RawApiResponses, WebsiteCategorization, IpNetblocks } from "@/lib/types";
 import { detectTyposquatting } from "@/ai/flows/detect-typosquatting";
 import { scrapeWebsiteText } from "./crawler-service";
+import { summarizeWebsiteContent } from "@/ai/flows/summarize-website-content";
 
 const API_KEY = process.env.WHOISXML_API_KEY;
 const BASE_URLS = {
@@ -195,6 +196,16 @@ export const getLiveAnalysisResults = async (query: string): Promise<AnalysisRes
         websiteResponded: catInfo?.websiteResponded ?? false,
     };
     
+    // --- Process Website Content & Summary ---
+    let websiteSummary: { summary: string } | null = null;
+    if (websiteContentData.content) {
+        websiteSummary = await summarizeWebsiteContent({ websiteContent: websiteContentData.content });
+    }
+    const processedWebsiteContent = {
+        ...websiteContentData,
+        summary: websiteSummary?.summary ?? null,
+    };
+
     // --- Assemble Raw API Responses ---
     const rawApiResponses: RawApiResponses = {
         whois: whoisData,
@@ -205,7 +216,7 @@ export const getLiveAnalysisResults = async (query: string): Promise<AnalysisRes
         websiteCategorization: categorizationData,
         typosquatting: typosquattingData,
         ipNetblocks: ipNetblocksData,
-        websiteContent: websiteContentData,
+        websiteContent: { ...websiteContentData, summary: websiteSummary },
     };
 
     // --- Assemble Final Result ---
@@ -231,7 +242,7 @@ export const getLiveAnalysisResults = async (query: string): Promise<AnalysisRes
         },
         websiteCategorization: processedCategorization,
         ipNetblocks: processedIpNetblocks,
-        websiteContent: websiteContentData,
+        websiteContent: processedWebsiteContent,
         rawApiResponses,
         ...(isEmail && { emailVerification: processedEmailVerification }),
     };

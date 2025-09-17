@@ -339,6 +339,7 @@ const WebsiteCategorizationSection = ({ data, rawData }: { data: WebsiteCategori
 const WebsiteContentSection = ({ data, rawData }: { data: NonNullable<AnalysisResults['websiteContent']>, rawData: any }) => (
     <Card className="bg-background/50">
         <CardContent className="p-4">
+             {data.summary && <DetailItem label="Podsumowanie AI" value={data.summary} valueClassName="text-justify" />}
             {data.error ? (
                 <DetailItem label="Błąd" value={data.error} valueClassName="text-destructive" />
             ) : (

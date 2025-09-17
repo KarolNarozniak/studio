@@ -2,6 +2,7 @@
 
 import type {SummarizeTrustCheckResultsOutput} from '@/ai/flows/summarize-trust-check-results';
 import type {DetectTyposquattingOutput} from '@/ai/flows/detect-typosquatting';
+import type { SummarizeWebsiteContentOutput } from '@/ai/flows/summarize-website-content';
 
 // A structure for the Website Categorization API response
 export interface WebsiteCategorization {
@@ -65,6 +66,7 @@ export interface AnalysisResults {
   ipNetblocks: IpNetblocks;
   websiteContent?: {
     content: string | null;
+    summary: string | null;
     error?: string;
   };
   emailVerification?: {
@@ -89,7 +91,11 @@ export interface RawApiResponses {
   typosquatting: DetectTyposquattingOutput;
   websiteCategorization: any;
   ipNetblocks: any;
-  websiteContent: any;
+  websiteContent: {
+    content: string | null;
+    error?: string;
+    summary?: SummarizeWebsiteContentOutput;
+  };
 }
 
 
