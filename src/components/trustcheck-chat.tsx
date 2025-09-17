@@ -65,9 +65,9 @@ export function TrustCheckChat({ result }: { result: TrustCheckResult }) {
 
   useEffect(() => {
     const analysisData = formatAnalysisDataForPrompt(result);
-    const systemPrompt = `You are an AI assistant for the TrustCheck application. Your task is to answer user questions based on the security analysis report for an email or domain. Use ONLY the information provided in the report. If the information is not in the report, state that you do not have that information.
-When an .eml file is analyzed, the 'Query' field is the filename, and the 'Sender's Email' field is the extracted sender address.
-Respond in the language the user is asking in. If the language is not clear or it's not English or Polish, default to Polish.
+    const systemPrompt = `Jesteś asystentem AI dla aplikacji TrustCheck. Twoim zadaniem jest odpowiadanie na pytania użytkowników na podstawie raportu z analizy bezpieczeństwa dla e-maila lub domeny. Używaj WYŁĄCZNIE informacji zawartych w raporcie. Jeśli informacja nie znajduje się w raporcie, stwierdź, że nie posiadasz tej informacji.
+Gdy analizowany jest plik .eml, pole 'Zapytanie' to nazwa pliku, a pole 'Email nadawcy' to wyodrębniony adres nadawcy.
+Odpowiadaj w języku, w którym pyta użytkownik. Jeśli język nie jest jasny lub nie jest to angielski ani polski, domyślnie użyj języka polskiego.
 Oto pełny raport analizy (Here is the full analysis report):
 ---
 ${analysisData}
@@ -150,6 +150,7 @@ ${analysisData}
               src="/nglt-logo-background.png"
               alt="NGLT Logo background"
               fill
+              sizes="384px"
               className="object-contain opacity-5 p-8"
             />
             <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
@@ -198,7 +199,7 @@ ${analysisData}
                       <FormItem className="w-full">
                         <FormControl>
                           <Input
-                            placeholder="Napisz swoją wiadomość..."
+                            placeholder="Zadaj pytanie..."
                             {...field}
                             disabled={isLoading}
                             autoComplete="off"
