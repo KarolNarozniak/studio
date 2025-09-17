@@ -14,8 +14,23 @@ import type { AnalysisResults } from '@/lib/types';
 
 
 // This creates a Zod schema from the TypeScript type.
-// It's a bit of a workaround to avoid re-defining the whole structure.
-const AnalysisResultsSchema = z.custom<AnalysisResults>();
+const AnalysisResultsSchema = z.object({
+  query: z.string(),
+  isEmail: z.boolean(),
+  domainReputation: z.any(),
+  whoisData: z.any(),
+  dnsRecords: z.any(),
+  blacklistStatus: z.any(),
+  threatIntelligence: z.any(),
+  historicalData: z.any(),
+  typosquattingCheck: z.any(),
+  websiteCategorization: z.any(),
+  ipNetblocks: z.any(),
+  emailVerification: z.any().optional(),
+  contentAnalysis: z.any().optional(),
+  rawApiResponses: z.any().optional(),
+});
+
 export type SummarizeTrustCheckResultsInput = AnalysisResults;
 
 
