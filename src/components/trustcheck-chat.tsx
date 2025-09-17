@@ -146,14 +146,17 @@ ${analysisData}
 
         {!isCollapsed && (
           <div className="flex-1 flex flex-col min-h-0 relative">
-            <Image 
-              src="/nglt-logo-background.png"
-              alt="NGLT Logo background"
-              fill
-              sizes="384px"
-              className="object-contain opacity-5 p-8"
-            />
-            <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
+            <div className="absolute inset-0 z-0 opacity-5 p-8 pointer-events-none">
+              <Image 
+                src="/nglt-logo-background.png"
+                alt="NGLT Logo background"
+                fill
+                sizes="(max-width: 768px) 100vw, 384px"
+                className="object-contain"
+                priority
+              />
+            </div>
+            <ScrollArea className="flex-1 p-4 z-10" ref={scrollAreaRef}>
               <div className="space-y-4">
                 {displayMessages.map((message, index) => (
                   <div key={index} className={cn('flex items-start gap-3', message.role === 'user' ? 'justify-end' : 'justify-start')}>
@@ -186,7 +189,7 @@ ${analysisData}
                 )}
               </div>
             </ScrollArea>
-            <div className="p-4 border-t border-primary/20">
+            <div className="p-4 border-t border-primary/20 z-10">
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(handleSubmit)} className="flex items-center gap-2">
                   <Avatar className="w-10 h-10">
