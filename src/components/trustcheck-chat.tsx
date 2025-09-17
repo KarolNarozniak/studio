@@ -74,7 +74,12 @@ ${analysisData}
 ---`;
     
     setHistory([{ role: 'system', parts: [{ text: systemPrompt }] }]);
-    setDisplayMessages([]);
+    setDisplayMessages([
+      {
+        role: 'assistant',
+        content: `Cześć! Jestem Twoim asystentem. Przeanalizowałem raport. O co chciałbyś zapytać?`
+      }
+    ]);
     setIsCollapsed(false); // Open chat when new results come in
   }, [result]);
 
@@ -127,14 +132,14 @@ ${analysisData}
   return (
     <TooltipProvider>
       <div className={cn(
-        "h-full bg-[#1e1e1e] text-white flex flex-col transition-all duration-300 ease-in-out border-l-2 border-primary/50",
+        "h-full bg-card text-card-foreground flex flex-col transition-all duration-300 ease-in-out border-l-2 border-primary/50",
         isCollapsed ? "w-12" : "w-96"
       )}>
         <div className="flex items-center justify-between p-2 border-b border-primary/20">
           {!isCollapsed && <h3 className="font-semibold text-lg ml-2">Asystent AI</h3>}
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" onClick={() => setIsCollapsed(!isCollapsed)} className="text-white hover:bg-white/10 hover:text-white">
+              <Button variant="ghost" size="icon" onClick={() => setIsCollapsed(!isCollapsed)} className="text-foreground hover:bg-muted">
                 {isCollapsed ? <PanelRightOpen /> : <PanelRightClose />}
               </Button>
             </TooltipTrigger>
@@ -147,21 +152,23 @@ ${analysisData}
         {!isCollapsed && (
           <div className="flex-1 flex flex-col min-h-0 relative">
             <div className="absolute inset-0 z-0 opacity-5 p-8 pointer-events-none">
-              <Image 
-                src="/nglt-logo-background.png"
-                alt="NGLT Logo background"
-                fill
-                sizes="(max-width: 768px) 100vw, 384px"
-                className="object-contain"
-                priority
-              />
+              <div className="relative w-full h-full">
+                  <Image 
+                    src="/nglt-logo-background.png"
+                    alt="NGLT Logo background"
+                    fill
+                    sizes="(max-width: 768px) 100vw, 384px"
+                    className="object-contain"
+                    priority
+                  />
+              </div>
             </div>
             <ScrollArea className="flex-1 p-4 z-10" ref={scrollAreaRef}>
               <div className="space-y-4">
                 {displayMessages.map((message, index) => (
                   <div key={index} className={cn('flex items-start gap-3', message.role === 'user' ? 'justify-end' : 'justify-start')}>
                     {message.role === 'assistant' && (
-                      <Avatar className="w-8 h-8 bg-card">
+                      <Avatar className="w-8 h-8 bg-primary/20">
                          <div className={cn("flex items-center justify-center w-full h-full", message.isError && 'bg-destructive')}>
                           {message.isError ? <AlertTriangle size={20} className="text-destructive-foreground" /> : <Bot size={20} className="text-primary"/>}
                          </div>
@@ -171,7 +178,9 @@ ${analysisData}
                       <p className="text-sm">{message.content}</p>
                     </div>
                     {message.role === 'user' && (
-                      <div className="w-8 h-8" />
+                       <Avatar className="w-8 h-8">
+                         <Image src="/chat-avatar-dog.png" alt="Chat avatar" width={40} height={40} className="rounded-full"/>
+                       </Avatar>
                     )}
                   </div>
                 ))}
@@ -192,9 +201,6 @@ ${analysisData}
             <div className="p-4 border-t border-primary/20 z-10">
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(handleSubmit)} className="flex items-center gap-2">
-                  <Avatar className="w-10 h-10">
-                    <Image src="/chat-avatar-dog.png" alt="Chat avatar" width={40} height={40} className="rounded-full"/>
-                  </Avatar>
                   <FormField
                     control={form.control}
                     name="message"
@@ -206,7 +212,7 @@ ${analysisData}
                             {...field}
                             disabled={isLoading}
                             autoComplete="off"
-                            className="bg-card border-primary/50 text-base"
+                            className="bg-background border-primary/50 text-base"
                           />
                         </FormControl>
                       </FormItem>

@@ -12,22 +12,22 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const SummarizeTrustCheckResultsInputSchema = z.object({
-  domainReputation: z.string().describe('Domain reputation information.'),
-  whoisData: z.string().describe('WHOIS lookup data.'),
-  dnsRecords: z.string().describe('DNS records information.'),
-  blacklistStatus: z.string().describe('Blacklist status of the domain/email.'),
-  threatIntelligence: z.string().describe('Threat intelligence report.'),
-  historicalData: z.string().describe('Historical data of the domain.'),
-  typosquattingCheck: z.string().describe('Analysis of whether the domain is a potential typosquatting attempt.'),
-  emailVerification: z.string().optional().describe('Email verification details, if applicable.'),
-  contentAnalysis: z.string().optional().describe('AI analysis of the email body content for phishing or social engineering tactics.'),
+  domainReputation: z.string().describe('Informacje o reputacji domeny.'),
+  whoisData: z.string().describe('Dane z wyszukiwania WHOIS.'),
+  dnsRecords: z.string().describe('Informacje o rekordach DNS.'),
+  blacklistStatus: z.string().describe('Status domeny/emaila na czarnej liście.'),
+  threatIntelligence: z.string().describe('Raport z analizy zagrożeń.'),
+  historicalData: z.string().describe('Dane historyczne domeny.'),
+  typosquattingCheck: z.string().describe('Analiza, czy domena jest potencjalną próbą typosquattingu.'),
+  emailVerification: z.string().optional().describe('Szczegóły weryfikacji e-maila, jeśli dotyczy.'),
+  contentAnalysis: z.string().optional().describe('Analiza AI treści e-maila pod kątem phishingu lub taktyk inżynierii społecznej.'),
 });
 export type SummarizeTrustCheckResultsInput = z.infer<typeof SummarizeTrustCheckResultsInputSchema>;
 
 const SummarizeTrustCheckResultsOutputSchema = z.object({
-  summary: z.string().describe('A concise summary of the analysis results.'),
-  recommendation: z.enum(['Fake', 'Real']).describe('Recommendation based on the analysis.'),
-  confidenceScore: z.number().describe('Confidence score for the recommendation (0-1).'),
+  summary: z.string().describe('Zwięzłe podsumowanie wyników analizy.'),
+  recommendation: z.enum(['Fake', 'Real']).describe('Rekomendacja na podstawie analizy.'),
+  confidenceScore: z.number().describe('Wynik zaufania dla rekomendacji (0-1).'),
 });
 export type SummarizeTrustCheckResultsOutput = z.infer<typeof SummarizeTrustCheckResultsOutputSchema>;
 
