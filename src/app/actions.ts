@@ -2,7 +2,7 @@
 'use server';
 import { chatWithResults } from '@/ai/flows/chat-with-results';
 import type { ChatMessage, TrustCheckResult } from '@/lib/types';
-import { getMockAnalysisResults } from '@/lib/mocks';
+import { getLiveAnalysisResults } from '@/lib/services/whois-service';
 import { summarizeTrustCheckResults } from '@/ai/flows/summarize-trust-check-results';
 import { analyzeEmlFile } from '@/ai/flows/analyze-eml-file';
 import { runChatDiagnostics as runChatDiagnosticsLogic } from '@/lib/testing';
@@ -29,8 +29,8 @@ export async function performTrustCheck(
     const fileContent = await file.text();
     analysis = await analyzeEmlFile({fileName: file.name, fileContent});
   } else if (query) {
-    // 1b. Get mock analysis data for domain/email
-    analysis = getMockAnalysisResults(query);
+    // 1b. Get live analysis data for domain/email
+    analysis = await getLiveAnalysisResults(query);
   } else {
     throw new Error('Invalid input for analysis.');
   }

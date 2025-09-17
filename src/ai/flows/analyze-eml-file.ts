@@ -7,7 +7,7 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 import type { AnalysisResults } from '@/lib/types';
-import { getMockAnalysisResults } from '@/lib/mocks';
+import { getLiveAnalysisResults } from '@/lib/services/whois-service';
 import { simpleParser } from 'mailparser';
 
 // Define input schema for the AI content analysis part
@@ -65,7 +65,7 @@ export async function analyzeEmlFile(
     }
 
     // 2. Perform the standard domain check on the sender's domain
-    const analysisResults = getMockAnalysisResults(fromAddress);
+    const analysisResults = await getLiveAnalysisResults(fromAddress);
 
     // 3. Analyze email content with AI
     const emailBody = parsedEmail.text || parsedEmail.html || '';
