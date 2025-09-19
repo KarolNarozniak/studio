@@ -92,7 +92,7 @@ ${analysisData}
     setDisplayMessages([
       {
         role: 'assistant',
-        content: `Cześć! Jestem Twoim asystentem. Przeanalizowałem raport. O co chciałbyś zapytać?`
+        content: `Cześć! Jestem Twoim asystentem. Przeanalizowałem raport. Mogę udzielić bardziej szczegółowych odpowiedzi. Czy chciałbyś o coś zapytać?`
       }
     ]);
     setIsCollapsed(false); // Open chat when new results come in
@@ -151,7 +151,7 @@ ${analysisData}
         isCollapsed ? "w-12" : "w-96"
       )}>
         <div className="flex items-center justify-between p-2 border-b border-primary/20">
-          {!isCollapsed && <h3 className="font-semibold text-lg ml-2">Pogadaj z Detektywem 🕵️🐶</h3>}
+          {!isCollapsed && <h3 className="font-semibold text-lg ml-2">Pogadaj z Psim Detektywem 🕵️🐶</h3>}
           <Tooltip>
             <TooltipTrigger asChild>
               <Button variant="ghost" size="icon" onClick={() => setIsCollapsed(!isCollapsed)} className="text-foreground hover:bg-muted">
